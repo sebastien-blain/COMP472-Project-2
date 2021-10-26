@@ -25,8 +25,9 @@ class Game:
         WHITE: u'\u25CB',
         BLACK: u'\u25CF',
         BLOCK: u'\u2612',
-        EMPTY: '.'
+        EMPTY: ' '
     }
+
 
     def __init__(self, n=3, b=0, s=3, b_position=None, recommend=True):
         self.recommend = recommend
@@ -44,7 +45,20 @@ class Game:
             for (x, y) in self.b_position:
                 self.current_state[x][y] = self.BLOCK
         elif self.b > 0:
-            # Place blocks at random
+            self.initialize_with_random_blocks()
+
+        self.player_turn = self.WHITE
+
+    def initialize_with_determined_blocks(self):
+        # Initialize a n by n board filled with EMPTY '.'
+        self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
+        for (x, y) in self.b_position:
+            self.current_state[x][y] = self.BLOCK
+
+    def initialize_with_random_blocks(self):
+        def place_random_blocks():
+            # Initialize a n by n board filled with EMPTY '.'
+            self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
             empty_tiles = self.get_empty_tiles()
             for i in range(self.b):
                 block = empty_tiles[random.randint(0, len(empty_tiles) - 1)]
@@ -57,12 +71,12 @@ class Game:
         return [(x, y) for x in range(self.n) for y in range(self.n) if self.current_state[x][y] == self.EMPTY]
 
     def draw_board(self):
-        print()
-        for y in range(0, self.n):
-            for x in range(0, self.n):
-                print(F'{self.DRAW_DICT[self.current_state[x][y]]}', end="")
-            print()
-        print()
+        print('+---+{}'.format('---+' * self.n))
+        print('|   |{}'.format(''.join([' {} |'.format(get_letter_from_index(i)) for i in range(self.n)])))
+        print('+---+{}'.format('---+' * self.n))
+        for index, row in enumerate([self.current_state[:][i] for i in range(self.n)]):
+            print('| {} |{}'.format(index, ''.join([' {} |'.format(self.DRAW_DICT[r]) for r in row])))
+            print('+---+{}'.format('---+' * self.n))
 
     def is_valid(self, px, py):
         if px < 0 or px > self.n - 1 or py < 0 or py > self.n - 1:
@@ -75,17 +89,14 @@ class Game:
     def is_end(self):
         # TODO: Change this function to be more generic and depend on the parameter s (winning line-up size)
         # Vertical win
-        for i in range(0, self.n):
-            if (self.current_state[0][i] != self.EMPTY and
-                    self.current_state[0][i] == self.current_state[1][i] and
-                    self.current_state[1][i] == self.current_state[2][i]):
-                return self.current_state[0][i]
-        # Horizontal win
-        for i in range(0, self.n):
-            if self.current_state[i] == [self.WHITE, self.WHITE, self.WHITE]:
+        for i in range(self.n):
+            row = [self.current_state[i][j] for j in range(self.n)]
+            column = [self.current_state[j][i] for j in range(self.n)]
+            if str(self.WHITE) * self.s in str(row) or str(self.WHITE) * self.s in str(column):
                 return self.WHITE
-            elif self.current_state[i] == [self.BLACK, self.BLACK, self.BLACK]:
+            if str(self.BLACK) * self.s in str(row) or str(self.BLACK) * self.s in str(column):
                 return self.BLACK
+
         # Main diagonal win
         if (self.current_state[0][0] != self.EMPTY and
                 self.current_state[0][0] == self.current_state[1][1] and
@@ -133,7 +144,7 @@ class Game:
             except ValueError:
                 py = get_index_from_letter(py)
             if self.is_valid(px, py):
-                return px, py
+                return py, px
             else:
                 print('The move is not valid! Try again.')
 
@@ -269,8 +280,8 @@ class Game:
 
 
 def main():
-    g = Game(n=3, recommend=True)
-    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
+    g = Game(n=3, recommend=False)
+    g.play(algo=Game.ALPHABETA, player_x=Game.HUMAN, player_o=Game.HUMAN)
     g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
