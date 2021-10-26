@@ -1,5 +1,6 @@
 import time
 import random
+import numpy as np
 
 
 def get_index_from_letter(letter):
@@ -16,10 +17,10 @@ class Game:
     HUMAN = 2
     AI = 3
 
-    WHITE = 1
-    BLACK = 2
-    BLOCK = 9
-    EMPTY = 0
+    WHITE = 'X'
+    BLACK = 'O'
+    BLOCK = 'B'
+    EMPTY = '.'
 
     DRAW_DICT = {
         WHITE: u'\u25CB',
@@ -27,7 +28,6 @@ class Game:
         BLOCK: u'\u2612',
         EMPTY: ' '
     }
-
 
     def __init__(self, n=3, b=0, s=3, b_position=None, recommend=True):
         self.recommend = recommend
@@ -42,30 +42,22 @@ class Game:
         self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
         # Place the blocks in the grid
         if self.b_position is not None:
-            for (x, y) in self.b_position:
-                self.current_state[x][y] = self.BLOCK
+            self.initialize_with_determined_blocks()
         elif self.b > 0:
             self.initialize_with_random_blocks()
 
         self.player_turn = self.WHITE
 
     def initialize_with_determined_blocks(self):
-        # Initialize a n by n board filled with EMPTY '.'
-        self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
         for (x, y) in self.b_position:
             self.current_state[x][y] = self.BLOCK
 
     def initialize_with_random_blocks(self):
-        def place_random_blocks():
-            # Initialize a n by n board filled with EMPTY '.'
-            self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
-            empty_tiles = self.get_empty_tiles()
-            for i in range(self.b):
-                block = empty_tiles[random.randint(0, len(empty_tiles) - 1)]
-                empty_tiles.remove(block)
-                self.current_state[block[0]][block[1]] = self.BLOCK
-        # Player X always plays first
-        self.player_turn = self.WHITE
+        empty_tiles = self.get_empty_tiles()
+        for i in range(self.b):
+            block = empty_tiles[random.randint(0, len(empty_tiles) - 1)]
+            empty_tiles.remove(block)
+            self.current_state[block[0]][block[1]] = self.BLOCK
 
     def get_empty_tiles(self):
         return [(x, y) for x in range(self.n) for y in range(self.n) if self.current_state[x][y] == self.EMPTY]
@@ -87,34 +79,32 @@ class Game:
             return True
 
     def is_end(self):
-        # TODO: Change this function to be more generic and depend on the parameter s (winning line-up size)
-        # Vertical win
-        for i in range(self.n):
-            row = [self.current_state[i][j] for j in range(self.n)]
-            column = [self.current_state[j][i] for j in range(self.n)]
-            if str(self.WHITE) * self.s in str(row) or str(self.WHITE) * self.s in str(column):
+        def get_all_lines():
+            state_cp = np.array(self.current_state).T
+            lines = list(state_cp)
+            lines.extend(list(state_cp.T))
+            lines.extend([state_cp[::-1, :].diagonal(i) for i in range(-state_cp.shape[0] + 1, state_cp.shape[1])])
+            lines.extend(state_cp.diagonal(i) for i in range(state_cp.shape[1] - 1, -state_cp.shape[0], -1))
+            return [l.tolist() for l in lines if len(l) >= self.s]
+
+        def check_win(arr, player):
+            # Checks if sequence of s of player is in string of arr
+            return str(player) * self.s in ''.join(arr)
+
+        lines = get_all_lines()
+        for l in lines:
+            if check_win(l, self.WHITE):
                 return self.WHITE
-            if str(self.BLACK) * self.s in str(row) or str(self.BLACK) * self.s in str(column):
+            if check_win(l, self.BLACK):
                 return self.BLACK
 
-        # Main diagonal win
-        if (self.current_state[0][0] != self.EMPTY and
-                self.current_state[0][0] == self.current_state[1][1] and
-                self.current_state[0][0] == self.current_state[2][2]):
-            return self.current_state[0][0]
-        # Second diagonal win
-        if (self.current_state[0][2] != self.EMPTY and
-                self.current_state[0][2] == self.current_state[1][1] and
-                self.current_state[0][2] == self.current_state[2][0]):
-            return self.current_state[0][2]
-        # Is whole board full?
-        for i in range(0, self.n):
-            for j in range(0, self.n):
-                # There's an empty field, we continue the game
-                if self.current_state[i][j] == self.EMPTY:
-                    return None
+        # Full board
+        state_cp = np.array(self.current_state)
+        if np.any(state_cp == self.EMPTY):
+            return None
+
         # It's a tie!
-        return '.'
+        return self.EMPTY
 
     def check_end(self):
         self.result = self.is_end()
@@ -124,7 +114,7 @@ class Game:
                 print('The winner is {}!'.format(self.WHITE))
             elif self.result == self.BLACK:
                 print('The winner is {}!'.format(self.BLACK))
-            elif self.result == '.':
+            elif self.result == self.EMPTY:
                 print("It's a tie!")
             self.initialize_game()
         return self.result
@@ -136,12 +126,16 @@ class Game:
             try:
                 px = int(px)
             except ValueError:
+                if len(px.strip()) == 0:
+                    px = 'z'
                 px = get_index_from_letter(px)
 
             py = input('enter the y coordinate: ')
             try:
                 py = int(py)
             except ValueError:
+                if len(py.strip()) == 0:
+                    py = 'z'
                 py = get_index_from_letter(py)
             if self.is_valid(px, py):
                 return py, px
@@ -172,7 +166,7 @@ class Game:
             return -1, x, y
         elif result == self.BLACK:
             return 1, x, y
-        elif result == '.':
+        elif result == self.EMPTY:
             return 0, x, y
         for i in range(0, self.n):
             for j in range(0, self.n):
@@ -281,7 +275,7 @@ class Game:
 
 def main():
     g = Game(n=3, recommend=False)
-    g.play(algo=Game.ALPHABETA, player_x=Game.HUMAN, player_o=Game.HUMAN)
+    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
     g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
