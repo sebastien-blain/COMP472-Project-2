@@ -1,5 +1,6 @@
 import time
 import random
+from typing import List, Tuple
 
 
 def get_index_from_letter(letter):
@@ -41,26 +42,54 @@ class Game:
         self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
         # Place the blocks in the grid
         if self.b_position is not None:
-            for (x, y) in self.b_position:
-                self.current_state[x][y] = self.BLOCK
+            self.initialize_with_determined_blocks()
         elif self.b > 0:
-            # Place blocks at random
+            self.initialize_with_random_blocks()
+
+        self.player_turn = self.WHITE
+
+    def initialize_with_determined_blocks(self):
+        # Initialize a n by n board filled with EMPTY '.'
+        self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
+        for (x, y) in self.b_position:
+            self.current_state[x][y] = self.BLOCK
+
+        self.win_positions = self.get_win_positions()
+        if len(self.win_positions) == 0:
+            print('No possibility for win with these blocks. TRY AGAIN')
+            exit(0)
+
+    def initialize_with_random_blocks(self):
+        def place_random_blocks():
+            # Initialize a n by n board filled with EMPTY '.'
+            self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
             empty_tiles = self.get_empty_tiles()
             for i in range(self.b):
                 block = empty_tiles[random.randint(0, len(empty_tiles) - 1)]
                 empty_tiles.remove(block)
                 self.current_state[block[0]][block[1]] = self.BLOCK
-        # Player X always plays first
-        self.player_turn = self.WHITE
+
+        if self.b > 2 * self.n:
+            print('Number of blocks is higher than 2 * n. TRY AGAIN')
+            exit(0)
+
+        place_random_blocks()
+        self.win_positions = self.get_win_positions()
+        while len(self.win_positions) == 0:
+            place_random_blocks()
+            self.win_positions = self.get_win_positions()
 
     def get_empty_tiles(self):
         return [(x, y) for x in range(self.n) for y in range(self.n) if self.current_state[x][y] == self.EMPTY]
 
     def draw_board(self):
+        # TODO: Add grid to make sure the axis are not displaced by the width of the content
         print()
+        print('  '+' '.join([get_letter_from_index(i) for i in range(self.n)]))
         for y in range(0, self.n):
+            print(y, end="")
             for x in range(0, self.n):
-                print(F'{self.DRAW_DICT[self.current_state[x][y]]}', end="")
+                print(F' {self.DRAW_DICT[self.current_state[x][y]]}', end="")
             print()
         print()
 
@@ -71,6 +100,36 @@ class Game:
             return False
         else:
             return True
+
+    def get_win_positions(self):
+        p = []
+
+        for i in range(0, self.n):
+            # horizontal win
+            h = [[(i, k) for k in range(j, j + self.s)] for j in range(0, self.n - self.s + 1)]
+            # vertical win
+            v = [[(k, i) for k in range(j, j + self.s)] for j in range(0, self.n - self.s + 1)]
+            for j in h + v:
+                if all([True if self.current_state[x][y] == self.EMPTY else False for (x, y) in j]):
+                    p.append(j)
+
+        # diagonal win
+        # there are (s-2)**2 possible way to win
+
+        # main diagonal win
+        d = [[(i, i) for i in range(j, j + self.s)] for j in range(0, self.n - self.s + 1)]
+        for j in d:
+            if all([True if self.current_state[x][y] == self.EMPTY else False for (x, y) in j]):
+                p.append(j)
+
+
+        # up
+
+        # down
+
+        return p
+
+        
 
     def is_end(self):
         # TODO: Change this function to be more generic and depend on the parameter s (winning line-up size)
@@ -269,7 +328,7 @@ class Game:
 
 
 def main():
-    g = Game(n=3, recommend=True)
+    g = Game(n=3,b=5, recommend=True)
     g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
     g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
