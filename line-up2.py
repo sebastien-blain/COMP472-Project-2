@@ -1,7 +1,5 @@
 import time
 import random
-import numpy as np
-
 
 def get_index_from_letter(letter):
     return ord(letter.lower()) - 97
@@ -40,9 +38,8 @@ class Game:
 
     def initialize_game(self):
         # Initialize a n by n board filled with EMPTY '.'
-        # self.current_state = np.empty((self.n, self.n), dtype=str)
-        # self.current_state.fill(self.EMPTY)
         self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
+        self.diagonal_mapper = [[abs(c - r) if abs(c - r) < abs(c - (self.n - 1 - r)) else abs(c - (self.n - 1 - r)) for r in range(self.n)] for c in range(self.n)]
         self.changes = None
         # Place the blocks in the grid
         if self.b_position is not None:
@@ -86,6 +83,18 @@ class Game:
         else:
             return True
 
+    def find_diagonals(self, coordinates):
+        diagonals = [[], []]
+        r, c = coordinates
+        for row_number, row in enumerate(self.current_state):
+            diagonal_point = c-r+row_number
+            if 0 <= diagonal_point < self.n:
+                diagonals[0].append(row[diagonal_point])
+            diagonal_point = c+r-row_number
+            if 0 <= diagonal_point < self.n:
+                diagonals[1].append(row[diagonal_point])
+        return diagonals
+
     def is_end(self):
         if self.changes is None:
             return None
@@ -106,18 +115,13 @@ class Game:
         if black_str in vertical:
             return self.BLACK
 
-        if self.s != self.n or r == c or r+c == self.n-1:
-            diag1 = ''.join(np.diagonal(self.current_state, offset=(c - r)).tolist())
-            if white_str in diag1:
-                return self.WHITE
-            if black_str in diag1:
-                return self.BLACK
-
-            diag2 = ''.join(np.diagonal(np.rot90(self.current_state), offset=-self.n + (c + r) + 1).tolist())        
-            if white_str in diag2:
-                return self.WHITE
-            if black_str in diag2:
-                return self.BLACK
+        if self.diagonal_mapper[r][c] <= self.n - self.s:
+            for diag in self.find_diagonals((r, c)):
+                d = ''.join(diag)
+                if white_str in d:
+                    return self.WHITE
+                if black_str in d:
+                    return self.BLACK
 
         # Full board
         if any( self.EMPTY in sublist for sublist in self.current_state):

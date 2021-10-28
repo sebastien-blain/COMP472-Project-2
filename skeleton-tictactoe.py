@@ -8,6 +8,7 @@ class Game:
     ALPHABETA = 1
     HUMAN = 2
     AI = 3
+    COUNT = 0
 
     def __init__(self, recommend=True):
         self.initialize_game()
@@ -111,6 +112,7 @@ class Game:
         x = None
         y = None
         result = self.is_end()
+        self.COUNT += 1
         if result == 'X':
             return -1, x, y
         elif result == 'O':
@@ -209,6 +211,7 @@ class Game:
                 else:
                     (m, x, y) = self.alphabeta(max=True)
             end = time.time()
+            print(self.COUNT-1)
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
                 if self.recommend:
@@ -224,8 +227,8 @@ class Game:
 
 def main():
     g = Game(recommend=True)
-    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
-    g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.HUMAN)
+    # g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
+    g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
 if __name__ == "__main__":
