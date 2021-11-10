@@ -152,6 +152,7 @@ class Game:
         x = None
         y = None
         result = self.is_end()
+        self.COUNT += 1
         if result == 'X':
             return -1, x, y
         elif result == 'O':
@@ -211,7 +212,8 @@ class Game:
                 else:
                     (m, x, y) = self.alphabeta(max=True)
             end = time.time()
-            print(self.COUNT-1)
+            print(self.COUNT - 1)
+            self.COUNT = 0
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
                 if self.recommend:

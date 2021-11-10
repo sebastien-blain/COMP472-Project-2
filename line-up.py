@@ -1,7 +1,5 @@
 import time
 import random
-import numpy as np
-
 
 def get_index_from_letter(letter):
     return ord(letter.lower()) - 97
@@ -16,6 +14,7 @@ class Game:
     ALPHABETA = 1
     HUMAN = 2
     AI = 3
+    COUNT = 0
 
     WHITE = 'X'
     BLACK = 'O'
@@ -35,18 +34,27 @@ class Game:
         self.b = b
         self.s = s
         self.b_position = b_position
+        self.white_str = self.WHITE * self.s
+        self.black_str = self.BLACK * self.s
+        self.player_turn = self.WHITE
         self.initialize_game()
 
     def initialize_game(self):
         # Initialize a n by n board filled with EMPTY '.'
         self.current_state = [[self.EMPTY for _ in range(self.n)] for _ in range(self.n)]
+
+        self.changes = None
         # Place the blocks in the grid
         if self.b_position is not None:
             self.initialize_with_determined_blocks()
         elif self.b > 0:
             self.initialize_with_random_blocks()
 
-        self.player_turn = self.WHITE
+        self.construct_winning_positions()
+
+    def update_board(self, x, y, player):
+        self.current_state[x][y] = player
+        self.changes = (x, y)
 
     def initialize_with_determined_blocks(self):
         for (x, y) in self.b_position:
@@ -66,7 +74,7 @@ class Game:
         print('+---+{}'.format('---+' * self.n))
         print('|   |{}'.format(''.join([' {} |'.format(get_letter_from_index(i)) for i in range(self.n)])))
         print('+---+{}'.format('---+' * self.n))
-        for index, row in enumerate([self.current_state[:][i] for i in range(self.n)]):
+        for index, row in enumerate([[row[col] for row in self.current_state] for col in range(self.n)]):
             print('| {} |{}'.format(index, ''.join([' {} |'.format(self.DRAW_DICT[r]) for r in row])))
             print('+---+{}'.format('---+' * self.n))
 
@@ -78,29 +86,49 @@ class Game:
         else:
             return True
 
+    def construct_winning_positions(self):
+        cols = [[] for _ in range(self.n)]
+        rows = [[] for _ in range(self.n)]
+        fdiag = [[] for _ in range(self.n + self.n - 1)]
+        bdiag = [[] for _ in range(len(fdiag))]
+        min_bdiag = -self.n + 1
+        for row in range(self.n):
+            for col in range(self.n):
+                cols[col].append((col, row))
+                rows[row].append((col, row))
+                fdiag[row + col].append((col, row))
+                bdiag[row - col - min_bdiag].append((col, row))
+        possible_win = '.' * self.s
+        # Only keep the lines that are bigger than s and that it is possible to win even with blocker
+        all_lines = [i for i in cols + rows + fdiag + bdiag if len(i) >= self.s and possible_win in ''.join([self.current_state[j[0]][j[1]] for j in i])]
+        pos = {}
+        # Construct a dictionary of winning lines for each coordinate
+        for row in range(self.n):
+            for col in range(self.n):
+                if self.current_state[col][row] != self.EMPTY:
+                    continue
+                # We only store winning positions of empty tiles
+                pos[(col, row)] = []
+                for line in all_lines:
+                    if (col, row) in line:
+                        pos[(col, row)].append(line)
+        self.winning_positions = pos
+
     def is_end(self):
-        def get_all_lines():
-            state_cp = np.array(self.current_state).T
-            lines = list(state_cp)
-            lines.extend(list(state_cp.T))
-            lines.extend([state_cp[::-1, :].diagonal(i) for i in range(-state_cp.shape[0] + 1, state_cp.shape[1])])
-            lines.extend(state_cp.diagonal(i) for i in range(state_cp.shape[1] - 1, -state_cp.shape[0], -1))
-            return [l.tolist() for l in lines if len(l) >= self.s]
+        if self.changes is None:
+            return None
 
-        def check_win(arr, player):
-            # Checks if sequence of s of player is in string of arr
-            return str(player) * self.s in ''.join(arr)
+        c, r = self.changes
 
-        lines = get_all_lines()
-        for l in lines:
-            if check_win(l, self.WHITE):
+        for line in self.winning_positions[(c, r)]:
+            current_line = ''.join([self.current_state[i[0]][i[1]] for i in line])
+            if self.white_str in current_line:
                 return self.WHITE
-            if check_win(l, self.BLACK):
+            if self.black_str in current_line:
                 return self.BLACK
 
-        # Full board
-        state_cp = np.array(self.current_state)
-        if np.any(state_cp == self.EMPTY):
+        # If not full board, return None to continue
+        if any( self.EMPTY in sublist for sublist in self.current_state):
             return None
 
         # It's a tie!
@@ -121,7 +149,7 @@ class Game:
 
     def input_move(self):
         while True:
-            print(F'Player {self.player_turn}, enter your move:')
+            print('Player {}, enter your move:'.format(self.player_turn))
             px = input('enter the x coordinate: ')
             try:
                 px = int(px)
@@ -138,7 +166,7 @@ class Game:
                     py = 'z'
                 py = get_index_from_letter(py)
             if self.is_valid(px, py):
-                return py, px
+                return px, py
             else:
                 print('The move is not valid! Try again.')
 
@@ -156,12 +184,14 @@ class Game:
         # 0  - a tie
         # 1  - loss for 'X'
         # We're initially setting it to 2 or -2 as worse than the worst case:
+        temp = self.changes
         value = 2
         if max:
             value = -2
         x = None
         y = None
         result = self.is_end()
+        self.COUNT += 1
         if result == self.WHITE:
             return -1, x, y
         elif result == self.BLACK:
@@ -172,20 +202,21 @@ class Game:
             for j in range(0, self.n):
                 if self.current_state[i][j] == self.EMPTY:
                     if max:
-                        self.current_state[i][j] = self.BLACK
+                        self.update_board(i, j, self.BLACK)
                         (v, _, _) = self.minimax(max=False)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
-                        self.current_state[i][j] = self.WHITE
+                        self.update_board(i, j, self.WHITE)
                         (v, _, _) = self.minimax(max=True)
                         if v < value:
                             value = v
                             x = i
                             y = j
                     self.current_state[i][j] = self.EMPTY
+        self.changes = temp
         return value, x, y
 
     def alphabeta(self, alpha=-2, beta=2, max=False):
@@ -195,12 +226,14 @@ class Game:
         # 0  - a tie
         # 1  - loss for 'X'
         # We're initially setting it to 2 or -2 as worse than the worst case:
+        temp = self.changes
         value = 2
         if max:
             value = -2
         x = None
         y = None
         result = self.is_end()
+        self.COUNT += 1
         if result == self.WHITE:
             return -1, x, y
         elif result == self.BLACK:
@@ -211,14 +244,14 @@ class Game:
             for j in range(0, self.n):
                 if self.current_state[i][j] == self.EMPTY:
                     if max:
-                        self.current_state[i][j] = self.BLACK
+                        self.update_board(i, j, self.BLACK)
                         (v, _, _) = self.alphabeta(alpha, beta, max=False)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
-                        self.current_state[i][j] = self.WHITE
+                        self.update_board(i, j, self.WHITE)
                         (v, _, _) = self.alphabeta(alpha, beta, max=True)
                         if v < value:
                             value = v
@@ -235,6 +268,7 @@ class Game:
                             return value, x, y
                         if value < beta:
                             beta = value
+        self.changes = temp
         return value, x, y
 
     def play(self, algo=None, player_x=None, player_o=None, d1=3, d2=3, t=None):
@@ -259,23 +293,25 @@ class Game:
                     (m, x, y) = self.alphabeta(max=False)
                 else:
                     (m, x, y) = self.alphabeta(max=True)
+            print(self.COUNT-1)
+            self.COUNT = 0
             end = time.time()
             if (self.player_turn == self.WHITE and player_x == self.HUMAN) or (
                     self.player_turn == self.BLACK and player_o == self.HUMAN):
                 if self.recommend:
-                    print(F'Evaluation time: {round(end - start, 7)}s')
-                    print(F'Recommended move: x = {get_letter_from_index(x)}, y = {y}')
+                    print('Evaluation time: {}s'.format(round(end - start, 7)))
+                    print('Recommended move: x = {}, y = {}'.format(get_letter_from_index(x), y))
                 (x, y) = self.input_move()
             if (self.player_turn == self.WHITE and player_x == self.AI) or (self.player_turn == self.BLACK and player_o == self.AI):
-                print(F'Evaluation time: {round(end - start, 7)}s')
-                print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
-            self.current_state[x][y] = self.player_turn
+                print('Evaluation time: {}s'.format(round(end - start, 7)))
+                print('Player {} under AI control plays: x = {}, y = {}'.format(self.DRAW_DICT[self.player_turn], get_letter_from_index(x), y))
+            self.update_board(x, y, self.player_turn)
             self.switch_player()
 
 
 def main():
-    g = Game(n=3, recommend=False)
-    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
+    g = Game(n=3, s=3, b=0, recommend=False)
+    # g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
     g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
