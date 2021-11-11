@@ -21,11 +21,18 @@ class Game:
     BLOCK = 'B'
     EMPTY = '.'
 
+    # DRAW_DICT = {
+    #     WHITE: u'\u25CB',
+    #     BLACK: u'\u25CF',
+    #     BLOCK: u'\u2612',
+    #     EMPTY: ' '
+    # }
+
     DRAW_DICT = {
-        WHITE: u'\u25CB',
-        BLACK: u'\u25CF',
-        BLOCK: u'\u2612',
-        EMPTY: ' '
+        WHITE: 'X',
+        BLACK: 'O',
+        BLOCK: 'B',
+        EMPTY: '.'
     }
 
     def __init__(self, n=3, b=0, s=3, b_position=None, recommend=True):
@@ -98,7 +105,7 @@ class Game:
                 rows[row].append((col, row))
                 fdiag[row + col].append((col, row))
                 bdiag[row - col - min_bdiag].append((col, row))
-        possible_win = '.' * self.s
+        possible_win = self.EMPTY * self.s
         # Only keep the lines that are bigger than s and that it is possible to win even with blocker
         all_lines = [i for i in cols + rows + fdiag + bdiag if len(i) >= self.s and possible_win in ''.join([self.current_state[j[0]][j[1]] for j in i])]
         pos = {}
@@ -113,6 +120,16 @@ class Game:
                     if (col, row) in line:
                         pos[(col, row)].append(line)
         self.winning_positions = pos
+
+    def heuristic1(self):
+        result = 0
+        for c in range(self.n):
+            for r in range(self.n):
+                if self.current_state[r][c] == self.WHITE:
+                    result += len(self.winning_positions[(c, r)])
+                elif self.current_state[r][c] == self.BLACK:
+                    result -= len(self.winning_positions[(c, r)])
+        return result
 
     def is_end(self):
         if self.changes is None:
@@ -176,6 +193,40 @@ class Game:
         elif self.player_turn == self.BLACK:
             self.player_turn = self.WHITE
         return self.player_turn
+
+    def minimax_n_ply(self, depth, max=False):
+        x = None
+        y = None
+
+        value = self.n * self.n
+        if max:
+            value = -(self.n * self.n)
+
+        temp = self.changes
+        if depth == 0:
+            return self.heuristic1()
+        
+        for i in range(0, self.n):
+            for j in range(0, self.n):
+                if self.current_state[i][j] != self.EMPTY:
+                    continue
+                if max:
+                    self.update_board(i, j, self.BLACK)
+                    (v, _, _) = self.minimax_n_ply(depth-1, max=False)
+                    if v > value:
+                        value = v
+                        x = i
+                        y = j
+                else:
+                    self.update_board(i, j, self.WHITE)
+                    (v, _, _) = self.minimax_n_ply(depth-1, max=True)
+                    if v < value:
+                        value = v
+                        x = i
+                        y = j
+                self.current_state[i][j] = self.EMPTY
+        self.changes = temp
+        return value, x, y
 
     def minimax(self, max=False):
         # Minimizing for 'X' and maximizing for 'O'
@@ -285,9 +336,9 @@ class Game:
             start = time.time()
             if algo == self.MINIMAX:
                 if self.player_turn == self.WHITE:
-                    (_, x, y) = self.minimax(max=False)
+                    (_, x, y) = self.minimax_n_ply(4, max=False)
                 else:
-                    (_, x, y) = self.minimax(max=True)
+                    (_, x, y) = self.minimax_n_ply(4, max=True)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == self.WHITE:
                     (m, x, y) = self.alphabeta(max=False)

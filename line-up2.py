@@ -21,11 +21,18 @@ class Game:
     BLOCK = 'B'
     EMPTY = '.'
 
+    # DRAW_DICT = {
+    #     WHITE: u'\u25CB',
+    #     BLACK: u'\u25CF',
+    #     BLOCK: u'\u2612',
+    #     EMPTY: ' '
+    # }
+
     DRAW_DICT = {
-        WHITE: u'\u25CB',
-        BLACK: u'\u25CF',
-        BLOCK: u'\u2612',
-        EMPTY: ' '
+        WHITE: 'X',
+        BLACK: 'O',
+        BLOCK: '-',
+        EMPTY: '.'
     }
 
     def __init__(self, n=3, b=0, s=3, b_position=None, recommend=True):
