@@ -233,9 +233,9 @@ class Game:
         result = self.is_end()
 
         if result == self.WHITE:
-            return -INF, x, y
+            return -1000000000000000000000000, x, y
         elif result == self.BLACK:
-            return INF, x, y
+            return 1000000000000000000000000 - 1, x, y
         elif result == self.EMPTY:
             return 0, x, y
 
@@ -249,14 +249,14 @@ class Game:
                 if max:
                     self.update_board(i, j, self.BLACK)
                     (v, _, _) = self.minimax_n_ply(depth - 1, max=False)
-                    if v >= value:
+                    if v > value:
                         value = v
                         x = i
                         y = j
                 else:
                     self.update_board(i, j, self.WHITE)
                     (v, _, _) = self.minimax_n_ply(depth - 1, max=True)
-                    if v <= value:
+                    if v < value:
                         value = v
                         x = i
                         y = j
@@ -276,9 +276,9 @@ class Game:
         result = self.is_end()
 
         if result == self.WHITE:
-            return -INF, x, y
+            return -1000000000000000000000000, x, y
         elif result == self.BLACK:
-            return INF, x, y
+            return 1000000000000000000000000, x, y
         elif result == self.EMPTY:
             return 0, x, y
 
@@ -292,14 +292,14 @@ class Game:
                 if max:
                     self.update_board(i, j, self.BLACK)
                     (v, _, _) = self.alphabeta_n_ply(depth - 1, alpha, beta, max=False)
-                    if v >= value:
+                    if v > value:
                         value = v
                         x = i
                         y = j
                 else:
                     self.update_board(i, j, self.WHITE)
                     (v, _, _) = self.alphabeta_n_ply(depth - 1, alpha, beta, max=True)
-                    if v <= value:
+                    if v < value:
                         value = v
                         x = i
                         y = j
@@ -356,9 +356,9 @@ class Game:
 
 
 def main():
-    g = Game(n=5, s=5, b=0, recommend=False)
-    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
-    g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
+    g = Game(n=5, s=3, b=0, recommend=False)
+    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI, d1=5, d2=5)
+    #g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
 if __name__ == "__main__":
