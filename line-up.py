@@ -1,5 +1,6 @@
 import time
 import random
+import math
 
 def get_index_from_letter(letter):
     return ord(letter.lower()) - 97
@@ -14,6 +15,9 @@ class Game:
     ALPHABETA = 1
     HUMAN = 2
     AI = 3
+
+    INF = math.inf
+
     COUNT = 0
 
     WHITE = 'X'
@@ -105,7 +109,7 @@ class Game:
                 rows[row].append((col, row))
                 fdiag[row + col].append((col, row))
                 bdiag[row - col - min_bdiag].append((col, row))
-        possible_win = self.EMPTY * self.s
+        possible_win = self.EMPTY * self.s  # "..."
         # Only keep the lines that are bigger than s and that it is possible to win even with blocker
         all_lines = [i for i in cols + rows + fdiag + bdiag if len(i) >= self.s and possible_win in ''.join([self.current_state[j[0]][j[1]] for j in i])]
         pos = {}
@@ -194,32 +198,51 @@ class Game:
             self.player_turn = self.WHITE
         return self.player_turn
 
+    def heuristic1(self):
+        result = 0
+        for c in range(self.n):
+            for r in range(self.n):
+                if self.current_state[r][c] == self.WHITE:
+                    result -= len(self.winning_positions[(c, r)])
+                elif self.current_state[r][c] == self.BLACK:
+                    result += len(self.winning_positions[(c, r)])
+        return result
+
     def minimax_n_ply(self, depth, max=False):
         x = None
         y = None
+        self.COUNT += 1
 
-        value = self.n * self.n
+        value = self.INF
         if max:
-            value = -(self.n * self.n)
+            value = -self.INF
+        result = self.is_end()
+
+        if result == self.WHITE:
+            return -self.INF, x, y
+        elif result == self.BLACK:
+            return self.INF, x, y
+        elif result == self.EMPTY:
+            return 0, x, y
 
         temp = self.changes
-        if depth == 0:
-            return self.heuristic1()
-        
+        if depth == 0:  # or if time is running out
+            return self.heuristic1(), x, y
+
         for i in range(0, self.n):
             for j in range(0, self.n):
                 if self.current_state[i][j] != self.EMPTY:
                     continue
                 if max:
                     self.update_board(i, j, self.BLACK)
-                    (v, _, _) = self.minimax_n_ply(depth-1, max=False)
+                    (v, _, _) = self.minimax_n_ply(depth - 1, max=False)
                     if v > value:
                         value = v
                         x = i
                         y = j
                 else:
                     self.update_board(i, j, self.WHITE)
-                    (v, _, _) = self.minimax_n_ply(depth-1, max=True)
+                    (v, _, _) = self.minimax_n_ply(depth - 1, max=True)
                     if v < value:
                         value = v
                         x = i
@@ -336,15 +359,17 @@ class Game:
             start = time.time()
             if algo == self.MINIMAX:
                 if self.player_turn == self.WHITE:
-                    (_, x, y) = self.minimax_n_ply(4, max=False)
+                    (m, x, y) = self.minimax_n_ply(depth=4, max=False)
                 else:
-                    (_, x, y) = self.minimax_n_ply(4, max=True)
+                    (m, x, y) = self.minimax_n_ply(depth=4, max=True)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == self.WHITE:
                     (m, x, y) = self.alphabeta(max=False)
                 else:
                     (m, x, y) = self.alphabeta(max=True)
             print(self.COUNT-1)
+            print("Heuristic value: {}".format(m))
+            print("X: {}, Y:{}".format(x, y))
             self.COUNT = 0
             end = time.time()
             if (self.player_turn == self.WHITE and player_x == self.HUMAN) or (
