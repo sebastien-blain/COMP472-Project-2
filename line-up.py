@@ -2,6 +2,7 @@ import time
 import random
 import math
 
+
 def get_index_from_letter(letter):
     return ord(letter.lower()) - 97
 
@@ -10,13 +11,14 @@ def get_letter_from_index(index):
     return chr(index + 97).upper()
 
 
+INF = math.inf
+
+
 class Game:
     MINIMAX = 0
     ALPHABETA = 1
     HUMAN = 2
     AI = 3
-
-    INF = math.inf
 
     COUNT = 0
 
@@ -111,7 +113,7 @@ class Game:
                 bdiag[row - col - min_bdiag].append((col, row))
         possible_win = self.EMPTY * self.s  # "..."
         # Only keep the lines that are bigger than s and that it is possible to win even with blocker
-        all_lines = [i for i in cols + rows + fdiag + bdiag if len(i) >= self.s and possible_win in ''.join([self.current_state[j[0]][j[1]] for j in i])]
+        self.all_lines = [i for i in cols + rows + fdiag + bdiag if len(i) >= self.s and possible_win in ''.join([self.current_state[j[0]][j[1]] for j in i])]
         pos = {}
         # Construct a dictionary of winning lines for each coordinate
         for row in range(self.n):
@@ -120,27 +122,16 @@ class Game:
                     continue
                 # We only store winning positions of empty tiles
                 pos[(col, row)] = []
-                for line in all_lines:
+                for line in self.all_lines:
                     if (col, row) in line:
                         pos[(col, row)].append(line)
         self.winning_positions = pos
-
-    def heuristic1(self):
-        result = 0
-        for c in range(self.n):
-            for r in range(self.n):
-                if self.current_state[r][c] == self.WHITE:
-                    result += len(self.winning_positions[(c, r)])
-                elif self.current_state[r][c] == self.BLACK:
-                    result -= len(self.winning_positions[(c, r)])
-        return result
 
     def is_end(self):
         if self.changes is None:
             return None
 
         c, r = self.changes
-
         for line in self.winning_positions[(c, r)]:
             current_line = ''.join([self.current_state[i[0]][i[1]] for i in line])
             if self.white_str in current_line:
@@ -202,32 +193,49 @@ class Game:
         result = 0
         for c in range(self.n):
             for r in range(self.n):
-                if self.current_state[r][c] == self.WHITE:
-                    result -= len(self.winning_positions[(c, r)])
-                elif self.current_state[r][c] == self.BLACK:
-                    result += len(self.winning_positions[(c, r)])
+                if self.current_state[c][r] == self.WHITE:
+                    result -= len(self.winning_positions[(c, r)]) * 100
+                elif self.current_state[c][r] == self.BLACK:
+                    result += len(self.winning_positions[(c, r)]) * 100
         return result
+
+    def heuristic2(self):
+        result = 0
+        for line in self.all_lines:
+            for i in range(self.s):
+                white_str = i * self.WHITE
+                black_str = i * self.BLACK
+                if white_str in line:
+                    result -= 10 ** i
+                if black_str in line:
+                    result += 10 ** i
+        return result
+
+    def heuristic(self):
+        e1 = self.heuristic1()
+        e2 = self.heuristic2()
+
+        return e1 + e2
 
     def minimax_n_ply(self, depth, max=False):
         x = None
         y = None
         self.COUNT += 1
-
-        value = self.INF
+        value = INF
         if max:
-            value = -self.INF
+            value = -INF
+        temp = self.changes
         result = self.is_end()
 
         if result == self.WHITE:
-            return -self.INF, x, y
+            return -INF, x, y
         elif result == self.BLACK:
-            return self.INF, x, y
+            return INF, x, y
         elif result == self.EMPTY:
             return 0, x, y
 
-        temp = self.changes
         if depth == 0:  # or if time is running out
-            return self.heuristic1(), x, y
+            return self.heuristic(), x, y
 
         for i in range(0, self.n):
             for j in range(0, self.n):
@@ -236,14 +244,14 @@ class Game:
                 if max:
                     self.update_board(i, j, self.BLACK)
                     (v, _, _) = self.minimax_n_ply(depth - 1, max=False)
-                    if v > value:
+                    if v >= value:
                         value = v
                         x = i
                         y = j
                 else:
                     self.update_board(i, j, self.WHITE)
                     (v, _, _) = self.minimax_n_ply(depth - 1, max=True)
-                    if v < value:
+                    if v <= value:
                         value = v
                         x = i
                         y = j
@@ -251,101 +259,61 @@ class Game:
         self.changes = temp
         return value, x, y
 
-    def minimax(self, max=False):
+    def alphabeta_n_ply(self, depth, alpha=-INF, beta=INF, max=False):
         # Minimizing for 'X' and maximizing for 'O'
-        # Possible values are:
-        # -1 - win for 'X'
-        # 0  - a tie
-        # 1  - loss for 'X'
-        # We're initially setting it to 2 or -2 as worse than the worst case:
-        temp = self.changes
-        value = 2
-        if max:
-            value = -2
         x = None
         y = None
-        result = self.is_end()
         self.COUNT += 1
-        if result == self.WHITE:
-            return -1, x, y
-        elif result == self.BLACK:
-            return 1, x, y
-        elif result == self.EMPTY:
-            return 0, x, y
-        for i in range(0, self.n):
-            for j in range(0, self.n):
-                if self.current_state[i][j] == self.EMPTY:
-                    if max:
-                        self.update_board(i, j, self.BLACK)
-                        (v, _, _) = self.minimax(max=False)
-                        if v > value:
-                            value = v
-                            x = i
-                            y = j
-                    else:
-                        self.update_board(i, j, self.WHITE)
-                        (v, _, _) = self.minimax(max=True)
-                        if v < value:
-                            value = v
-                            x = i
-                            y = j
-                    self.current_state[i][j] = self.EMPTY
-        self.changes = temp
-        return value, x, y
+        value = INF
+        if max:
+            value = -INF
+        temp = self.changes
+        result = self.is_end()
 
-    def alphabeta(self, alpha=-2, beta=2, max=False):
-        # Minimizing for 'X' and maximizing for 'O'
-        # Possible values are:
-        # -1 - win for 'X'
-        # 0  - a tie
-        # 1  - loss for 'X'
-        # We're initially setting it to 2 or -2 as worse than the worst case:
-        temp = self.changes
-        value = 2
-        if max:
-            value = -2
-        x = None
-        y = None
-        result = self.is_end()
-        self.COUNT += 1
         if result == self.WHITE:
-            return -1, x, y
+            self.draw_board()
+            return -INF, x, y
         elif result == self.BLACK:
-            return 1, x, y
+            return INF, x, y
         elif result == self.EMPTY:
             return 0, x, y
+
+        if depth == 0:  # or if time is running out
+            return self.heuristic(), x, y
+
         for i in range(0, self.n):
             for j in range(0, self.n):
-                if self.current_state[i][j] == self.EMPTY:
-                    if max:
-                        self.update_board(i, j, self.BLACK)
-                        (v, _, _) = self.alphabeta(alpha, beta, max=False)
-                        if v > value:
-                            value = v
-                            x = i
-                            y = j
-                    else:
-                        self.update_board(i, j, self.WHITE)
-                        (v, _, _) = self.alphabeta(alpha, beta, max=True)
-                        if v < value:
-                            value = v
-                            x = i
-                            y = j
-                    self.current_state[i][j] = self.EMPTY
-                    if max:
-                        if value >= beta:
-                            return value, x, y
-                        if value > alpha:
-                            alpha = value
-                    else:
-                        if value <= alpha:
-                            return value, x, y
-                        if value < beta:
+                if self.current_state[i][j] != self.EMPTY:
+                    continue
+                if max:
+                    self.update_board(i, j, self.BLACK)
+                    (v, _, _) = self.alphabeta_n_ply(depth - 1, alpha, beta, max=False)
+                    if v >= value:
+                        value = v
+                        x = i
+                        y = j
+                else:
+                    self.update_board(i, j, self.WHITE)
+                    (v, _, _) = self.alphabeta_n_ply(depth - 1, alpha, beta, max=True)
+                    if v <= value:
+                        value = v
+                        x = i
+                        y = j
+                self.current_state[i][j] = self.EMPTY
+                if max:
+                    if value >= beta:
+                        return value, x, y
+                    if value > alpha:
+                        alpha = value
+                else:
+                    if value <= alpha:
+                        return value, x, y
+                    if value < beta:
                             beta = value
         self.changes = temp
         return value, x, y
 
-    def play(self, algo=None, player_x=None, player_o=None, d1=3, d2=3, t=None):
+    def play(self, algo=None, player_x=None, player_o=None, d1=5, d2=10, t=None):
         if algo is None:
             algo = self.ALPHABETA
         if player_x is None:
@@ -359,14 +327,14 @@ class Game:
             start = time.time()
             if algo == self.MINIMAX:
                 if self.player_turn == self.WHITE:
-                    (m, x, y) = self.minimax_n_ply(depth=4, max=False)
+                    (m, x, y) = self.minimax_n_ply(depth=d1, max=False)
                 else:
-                    (m, x, y) = self.minimax_n_ply(depth=4, max=True)
+                    (m, x, y) = self.minimax_n_ply(depth=d2, max=True)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == self.WHITE:
-                    (m, x, y) = self.alphabeta(max=False)
+                    (m, x, y) = self.alphabeta_n_ply(depth=d1, max=False)
                 else:
-                    (m, x, y) = self.alphabeta(max=True)
+                    (m, x, y) = self.alphabeta_n_ply(depth=d2, max=True)
             print(self.COUNT-1)
             print("Heuristic value: {}".format(m))
             print("X: {}, Y:{}".format(x, y))
@@ -386,9 +354,9 @@ class Game:
 
 
 def main():
-    g = Game(n=3, s=3, b=0, recommend=False)
+    g = Game(n=4, s=3, b=5, recommend=False)
     # g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
-    g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
+    g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
 
 
 if __name__ == "__main__":
