@@ -211,6 +211,11 @@ class Game:
                     result += 10 ** i
         return result
 
+    # Idea
+    # if n tiles have the same player, ex: XX is better than X0
+    # if 2 tiles are separated by other player, ex: X0X is good for 0 but X.X is good for X
+    # number of current winning lines X - O, ex: if X is in a possible lines that could win, give more points but if O is blocking a lines bad for X
+
     def heuristic(self):
         e1 = self.heuristic1()
         e2 = self.heuristic2()
@@ -271,7 +276,6 @@ class Game:
         result = self.is_end()
 
         if result == self.WHITE:
-            self.draw_board()
             return -INF, x, y
         elif result == self.BLACK:
             return INF, x, y
@@ -309,11 +313,11 @@ class Game:
                     if value <= alpha:
                         return value, x, y
                     if value < beta:
-                            beta = value
+                        beta = value
         self.changes = temp
         return value, x, y
 
-    def play(self, algo=None, player_x=None, player_o=None, d1=5, d2=10, t=None):
+    def play(self, algo=None, player_x=None, player_o=None, d1=4, d2=4, t=None):
         if algo is None:
             algo = self.ALPHABETA
         if player_x is None:
@@ -335,9 +339,7 @@ class Game:
                     (m, x, y) = self.alphabeta_n_ply(depth=d1, max=False)
                 else:
                     (m, x, y) = self.alphabeta_n_ply(depth=d2, max=True)
-            print(self.COUNT-1)
             print("Heuristic value: {}".format(m))
-            print("X: {}, Y:{}".format(x, y))
             self.COUNT = 0
             end = time.time()
             if (self.player_turn == self.WHITE and player_x == self.HUMAN) or (
@@ -354,9 +356,9 @@ class Game:
 
 
 def main():
-    g = Game(n=4, s=3, b=5, recommend=False)
-    # g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
+    g = Game(n=5, s=5, b=0, recommend=False)
     g.play(algo=Game.ALPHABETA, player_x=Game.AI, player_o=Game.AI)
+    g.play(algo=Game.MINIMAX, player_x=Game.AI, player_o=Game.AI)
 
 
 if __name__ == "__main__":
