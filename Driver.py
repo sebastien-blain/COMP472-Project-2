@@ -14,7 +14,9 @@ default_params = {
 
 class Driver:
 
-    def __init__(self, r=1, game_params=default_params):
+    def __init__(self, r=1, game_params=None):
+        if game_params is None:
+            game_params = default_params
         self.count = 2 * r
         self.game = Game(**game_params)
 
