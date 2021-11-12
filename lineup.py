@@ -299,9 +299,9 @@ class Game:
                 self.update_board(i, j, self.BLACK)
                 result = self.is_end()
                 if result == self.WHITE:
-                    v = -INF
+                    v = -1000000000000
                 elif result == self.BLACK:
-                    v = INF
+                    v = 1000000000000
                 elif result == self.EMPTY:
                     v = 0
                 elif start_time + self.t <= time.time() or depth >= self.d_max:  # or if time is running out
@@ -317,9 +317,9 @@ class Game:
                 self.update_board(i, j, self.WHITE)
                 result = self.is_end()
                 if result == self.WHITE:
-                    v = -INF
+                    v = -1000000000000
                 elif result == self.BLACK:
-                    v = INF
+                    v = 1000000000000
                 elif result == self.EMPTY:
                     v = 0
                 elif start_time + self.t <= time.time() or depth >= self.d_min:  # or if time is running out
@@ -403,7 +403,7 @@ class Game:
 
 
 def main():
-    g = Game(n=5, s=4, b=0, t=100000000000000000, d1=2, d2=4, recommend=False, a=True, play_mode=('ai', 'ai'))
+    g = Game(n=5, s=4, b=0, t=10, d1=10, d2=10, recommend=False, a=True, play_mode=('ai', 'ai'))
     g.play()
 
 

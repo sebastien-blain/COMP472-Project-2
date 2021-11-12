@@ -73,6 +73,12 @@ class Logger:
         f.write("\ni   Evaluation time: {:.2f}s".format(self.current_stat.end_time - self.current_stat.start_time))
         f.write("\nii  Heuristic evaluations: {:.2f}".format(self.heuristic_score))
         f.write("\niii Evaluations by depth: {}".format(self.current_stat.number_of_nodes_at_depth))
+        s = 0
+        num = 0
+        for i in self.current_stat.number_of_nodes_at_depth:
+            num += self.current_stat.number_of_nodes_at_depth[i]
+            s += self.current_stat.number_of_nodes_at_depth[i] * i
+        f.write("\niv  Average evaluation depth: {:.1f}".format(s/num))
 
         # TODO: Add ARD
 
