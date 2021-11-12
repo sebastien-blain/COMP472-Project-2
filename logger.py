@@ -8,6 +8,10 @@ def get_index_from_letter(letter):
 def get_letter_from_index(index):
     return chr(index + 97).upper()
 
+WHITE = 'X'
+BLACK = 'O'
+BLOCK = 'B'
+EMPTY = '.'
 
 class Stat():
     def __init__(self):
@@ -104,8 +108,42 @@ class Logger:
         self.stats.append(self.current_stat)
 
 
-    def end_game(self):
-        # TODO: Handle end game printing
+    def end_game(self, winner):
+        avg_time = 0
+        total_states = 0
+        avg_eval_depth = 0
+        total_states_at_each_depth = {}
+        avg_recursion_depth = 0
+        total_moves = self.count
+        for stat in self.stats:
+            avg_time += stat.end_time - stat.start_time
+            total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
+            for i in stat.number_of_nodes_at_depth:
+                if i not in total_states_at_each_depth:
+                    total_states_at_each_depth[i] = 0
+                total_states_at_each_depth[i] += stat.number_of_nodes_at_depth[i]
+        num = 0
+        s = 0
+        for i in total_states_at_each_depth:
+            num += total_states_at_each_depth[i]
+            s += total_states_at_each_depth[i] * i
+
+        avg_time /= len(self.stats)
+        avg_eval_depth = s/num
+
+        f = open(self.filename, "a")
+        if winner == EMPTY:
+            f.write("\n\nIt's a tie!\n")
+        else:
+            f.write("\n\nThe winner is {}!\n".format(winner))
+        f.write("\n6(b)i    Average evaluation time: {:.2f}s".format(avg_time))
+        f.write("\n6(b)ii   Total heuristic evaluations: {}".format(total_states))
+        f.write("\n6(b)iii  Evaluations by depth: {}".format(total_states_at_each_depth))
+        f.write("\n6(b)iv   Average evaluation depth: {:.1f}".format(avg_eval_depth))
+        f.write("\n6(b)v    Average recursion depth: {:.1f}s".format(avg_recursion_depth))
+        f.write("\n6(b)vi   Total moves: {}".format(total_moves))
+        f.close()
+
         return None
 
 

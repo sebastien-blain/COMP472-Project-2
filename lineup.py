@@ -161,10 +161,13 @@ class Game:
         # Printing the appropriate message if the game has ended
         if self.result is not None:
             if self.result == self.WHITE:
+                self.logger.end_game(self.WHITE)
                 print('The winner is {}!'.format(self.WHITE))
             elif self.result == self.BLACK:
+                self.logger.end_game(self.BLACK)
                 print('The winner is {}!'.format(self.BLACK))
             elif self.result == self.EMPTY:
+                self.logger.end_game(self.EMPTY)
                 print("It's a tie!")
             self.initialize_game()
         return self.result
