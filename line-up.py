@@ -242,46 +242,61 @@ class Game:
 
         return result
 
-
-    def minimax_n_ply(self, depth, max=False, heuristic=None, start_time=time.time(), allowed_time=10):
+    def minimax_n_ply(self, depth, heuristic, max_depth, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
         x = None
         y = None
-        value = INF
-        if max:
-            value = -INF
-        temp = self.changes
+        value = -INF if max else INF
+        end = False
+
+        player_max = self.player_turn
+        player_min = self.BLACK if self.player_turn == self.WHITE else self.WHITE
+        # Look if we are an end node or a leaf node
         result = self.is_end()
-
-        if result == self.WHITE:
-            return -1000000000, x, y
-        elif result == self.BLACK:
-            return 1000000000 - 1, x, y
+        if result == player_max:
+            end = True
+            value = 1000000000000
+        elif result == player_min:
+            end = True
+            value = -1000000000000
         elif result == self.EMPTY:
-            return 0, x, y
+            end = True
+            value = 0
+        elif time.time() - start_time >= self.t or time.time() - start_time >= allowed_time or depth >= max_depth:
+            end = True
+            value = heuristic(player_max, player_min)
+        if end:
+            empty_tiles = self.get_empty_tiles()
+            empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
+            self.logger.visit_end_node_at_depth(depth)
+            return value, empty[0], empty[1]
 
-        if depth == 0:  # or if time is running out
-            return heuristic(), x, y
+        temp = self.changes
 
-        for i in range(0, self.n):
-            for j in range(0, self.n):
-                if self.current_state[i][j] != self.EMPTY:
-                    continue
-                if max:
-                    self.update_board(i, j, self.BLACK)
-                    (v, _, _) = self.minimax_n_ply(depth - 1, max=False)
-                    if v > value:
-                        value = v
-                        x = i
-                        y = j
-                else:
-                    self.update_board(i, j, self.WHITE)
-                    (v, _, _) = self.minimax_n_ply(depth - 1, max=True)
-                    if v < value:
-                        value = v
-                        x = i
-                        y = j
-                self.current_state[i][j] = self.EMPTY
+        childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
+        childs_len = len(childs)
+        for (i, j) in childs:
+            self.update_board(i, j, player_max if max else player_min)
+            (v, _, _) = self.minimax_n_ply(depth + 1, heuristic, max_depth, max=not max, start_time=start_time, allowed_time=current_time / childs_len)
+
+            # Restore state
+            self.current_state[i][j] = self.EMPTY
+
+            if max:
+                if v > value:
+                    value = v
+                    x = i
+                    y = j
+            else:
+                if v < value:
+                    value = v
+                    x = i
+                    y = j
+
         self.changes = temp
+        if x is None and y is None:
+            empty_tiles = self.get_empty_tiles()
+            (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
+        self.logger.visit_end_node_at_depth(depth)
         return value, x, y
 
     def alphabeta_n_ply(self, depth, heuristic, max_depth, alpha=-INF, beta=INF, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
@@ -379,9 +394,9 @@ class Game:
             self.logger.create_stat_move(self.player_turn)
             if not self.algo:
                 if self.player_turn == self.WHITE:
-                    (m, x, y) = self.minimax_n_ply(depth=0, max=False)
+                    (m, x, y) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
-                    (m, x, y) = self.minimax_n_ply(depth=0, max=True)
+                    (m, x, y) = self.minimax_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
             else:
                 if self.player_turn == self.WHITE:
                     (m, x, y) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
