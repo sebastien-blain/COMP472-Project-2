@@ -1,0 +1,60 @@
+#############
+SERIE START
+#############
+n=5 b=10 s=3 t=5
+
+Player 1: d=6 a=True
+Player 2: d=6 a=True
+
+2 games
+
+Total wins for heuristic e2: 0 (0.00%)
+Total wins for heuristic e1: 1 (50.00%)
+
+i    Average evaluation time: 0.33s
+ii   Total heuristic evaluations: 561733.0
+iii  Evaluations by depth: {6: 556026.0, 5: 5338.0, 4: 309.0, 3: 48.5, 2: 10.5, 1: 1.0}
+iv   Average evaluation depth: 6.0
+v    Average recursion depth: 0.0s
+vi   Average moves per game: 12.00
+
+#############
+SERIE START
+#############
+n=5 b=10 s=3 t=5
+
+Player 1: d=6 a=True
+Player 2: d=6 a=True
+
+2 games
+
+Total wins for heuristic e2: 0 (0.00%)
+Total wins for heuristic e1: 0 (0.00%)
+
+i    Average evaluation time: 0.09s
+ii   Total heuristic evaluations: 99990.0
+iii  Evaluations by depth: {6: 96679.0, 5: 2677.5, 4: 563.5, 3: 58.5, 2: 10.5, 1: 1.0}
+iv   Average evaluation depth: 6.0
+v    Average recursion depth: 0.0s
+vi   Average moves per game: 15.00
+
+#############
+SERIE START
+#############
+n=5 b=10 s=3 t=5
+
+Player 1: d=6 a=True
+Player 2: d=6 a=True
+
+2 games
+
+Total wins for heuristic e2: 1 (50.00%)
+Total wins for heuristic e1: 0 (0.00%)
+
+i    Average evaluation time: 0.19s
+ii   Total heuristic evaluations: 165473.0
+iii  Evaluations by depth: {6: 162366.5, 5: 2801.5, 4: 267.0, 3: 32.0, 2: 5.0, 1: 1.0}
+iv   Average evaluation depth: 6.0
+v    Average recursion depth: 0.0s
+vi   Average moves per game: 10.00
+

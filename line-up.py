@@ -40,7 +40,7 @@ class Game:
         EMPTY: '.'
     }
 
-    def __init__(self, n=3, b=0, s=3, t=10, d1=3, d2=3, b_position=None, recommend=True, a=True, play_mode=('h', 'h'), heuristic=('e1', 'e2')):
+    def __init__(self, n=3, b=0, s=3, t=10, d1=3, d2=3, b_position=None, recommend=True, a1=True, a2=True, play_mode=('h', 'h'), heuristic=('e1', 'e2')):
         if b_position is None:
             b_position = []
         self.recommend = recommend
@@ -51,7 +51,8 @@ class Game:
         self.d_min = d1
         self.d_max = d2
         self.b_position = b_position
-        self.algo = a
+        self.algo1 = a1,
+        self.algo2 = a2,
         self.play_mode = play_mode
         self.white_str = self.WHITE * self.s
         self.black_str = self.BLACK * self.s
@@ -373,24 +374,25 @@ class Game:
             'id': self.WHITE,
             'type': self.play_mode[0],
             'd': self.d_min,
-            'a': self.algo,
+            'a': self.algo1,
             'e': self.player_x_heuristic[0]
         }
         player_2 = {
             'id': self.BLACK,
             'type': self.play_mode[1],
             'd': self.d_max,
-            'a': self.algo,
+            'a': self.algo2,
             'e': self.player_o_heuristic[0]
         }
         self.logger = Logger(self.n, self.b, self.s, self.t, self.b_position, player_1, player_2, self.current_state)
         while True:
             self.draw_board()
-            if self.check_end():
-                return
+            check_end_res = self.check_end()
+            if check_end_res:
+                return check_end_res
             start = time.time()
             self.logger.create_stat_move(self.player_turn)
-            if not self.algo:
+            if (self.player_turn == self.WHITE and not self.algo1) or (self.player_turn != self.WHITE and not self.algo2):
                 if self.player_turn == self.WHITE:
                     (m, x, y) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
