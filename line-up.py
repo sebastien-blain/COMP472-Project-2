@@ -227,18 +227,20 @@ class Game:
         result = 0
 
         # Checks for lines where player_max is about to win or can expend
-        min_win = player_min * (self.s - 1)
+        min_win1 = player_min * (self.s - 1)
+        min_win2 = player_min * (self.s - 2)
         for win_line in self.all_lines:
             # Only keep lines with no blocks that would block a winning line
             str_lines = [i for i in ''.join([self.current_state[c][r] for c, r in win_line]).split(self.BLOCK) if len(i) >= self.s]
             for line in str_lines:
                 # Blocks a win from min
-                if min_win+player_max in line or player_max+min_win in line:
-                    result += 10000
-                result += line.count(player_max)
+                if min_win1+player_max in line or player_max+min_win1 in line:
+                    result += 100
+                if min_win2+player_max in line or player_max+min_win2 in line:
+                    result += 1
                 remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
                 for rem_line in remaining_lines:
-                    result += 2 ** rem_line.count(player_max)
+                    result += 10 ** rem_line.count(player_max)
 
         return result
 
@@ -296,7 +298,6 @@ class Game:
         if x is None and y is None:
             empty_tiles = self.get_empty_tiles()
             (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-        self.logger.visit_end_node_at_depth(depth)
         return value, x, y
 
     def alphabeta_n_ply(self, depth, heuristic, max_depth, alpha=-INF, beta=INF, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
@@ -344,7 +345,6 @@ class Game:
                     x = i
                     y = j
                 if value >= beta:
-                    self.logger.visit_end_node_at_depth(depth)
                     return value, x, y
                 if value > alpha:
                     alpha = value
@@ -354,7 +354,6 @@ class Game:
                     x = i
                     y = j
                 if value <= alpha:
-                    self.logger.visit_end_node_at_depth(depth)
                     return value, x, y
                 if value < beta:
                     beta = value
@@ -362,7 +361,6 @@ class Game:
         if x is None and y is None:
             empty_tiles = self.get_empty_tiles()
             (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-        self.logger.visit_end_node_at_depth(depth)
         return value, x, y
 
     def play(self):
@@ -402,7 +400,7 @@ class Game:
                     (m, x, y) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
                     (m, x, y) = self.alphabeta_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
-            self.logger.end_stat_move((x, y), m)
+            self.logger.end_stat_move((x, y))
             print("Heuristic value: {}".format(m))
             end = time.time()
             if (self.player_turn == self.WHITE and self.player_x == self.HUMAN) or (
@@ -420,7 +418,7 @@ class Game:
 
 
 def main():
-    g = Game(n=5, s=4, b=0, t=5, d1=6, d2=6, recommend=False, a=True, play_mode=('ai', 'ai'), heuristic=('e1', 'e2'))
+    g = Game(n=5, s=3, b=10, t=5, d1=6, d2=6, recommend=False, a=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
     g.play()
 
 

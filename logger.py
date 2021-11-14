@@ -75,7 +75,10 @@ class Logger:
         f.write("\nPlayer {} under {} control plays: {} {}\n".format(self.player['id'], self.player['type'] , get_letter_from_index(self.move[0]), self.move[1]))
 
         f.write("\ni   Evaluation time: {:.2f}s".format(self.current_stat.end_time - self.current_stat.start_time))
-        f.write("\nii  Heuristic evaluations: {:.2f}".format(self.heuristic_score))
+        num = 0
+        for i in self.current_stat.number_of_nodes_at_depth:
+            num += self.current_stat.number_of_nodes_at_depth[i]
+        f.write("\nii  Heuristic evaluations: {:.2f}".format(num))
         f.write("\niii Evaluations by depth: {}".format(self.current_stat.number_of_nodes_at_depth))
         s = 0
         num = 0
@@ -101,9 +104,8 @@ class Logger:
             self.current_stat.number_of_nodes_at_depth[d] = 0
         self.current_stat.number_of_nodes_at_depth[d] += 1
 
-    def end_stat_move(self, move, m):
+    def end_stat_move(self, move):
         self.current_stat.end_time = time.time()
-        self.heuristic_score = m
         self.move = move
         self.stats.append(self.current_stat)
 
