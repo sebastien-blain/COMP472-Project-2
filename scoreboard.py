@@ -39,7 +39,7 @@ class Scoreboard:
         self.game_params['a1'], self.game_params['a2'] = self.game_params['a2'], self.game_params['a1']
         self.game_params['heuristic'] =  (self.game_params['heuristic'][1], self.game_params['heuristic'][0])
 
-    def end_game(self, winner):
+    def end_game(self):
         count = self.game.logger.count
         stats = self.game.logger.stats
 
@@ -51,6 +51,7 @@ class Scoreboard:
         total_moves = count
         for stat in stats:
             avg_time += stat.end_time - stat.start_time
+            avg_recursion_depth += stat.ard
             total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
             for i in stat.number_of_nodes_at_depth:
                 if i not in total_states_at_each_depth:
@@ -63,6 +64,7 @@ class Scoreboard:
             s += total_states_at_each_depth[i] * i
 
         avg_time /= len(stats)
+        avg_recursion_depth /= len(stats)
         avg_eval_depth = s/num
 
         return {
@@ -99,7 +101,7 @@ class Scoreboard:
             if result == self.game.WHITE and i%2 != 0:
                 res['p2_winner'] += 1
 
-            end_res = self.end_game(result)
+            end_res = self.end_game()
 
             for k, v in end_res.items():
                 if type(v) is dict:
@@ -125,5 +127,5 @@ class Scoreboard:
         f.close()
 
 if __name__ == "__main__":
-    d = Scoreboard(r=1)
+    d = Scoreboard(r=5)
     d.run()

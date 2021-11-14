@@ -271,16 +271,19 @@ class Game:
             empty_tiles = self.get_empty_tiles()
             empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
             self.logger.visit_end_node_at_depth(depth)
-            return value, empty[0], empty[1]
+            return value, empty[0], empty[1], depth
 
         temp = self.changes
 
         childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
         childs_len = len(childs)
+        child_seen = 0
+        total_d = 0
         for (i, j) in childs:
             self.update_board(i, j, player_max if max else player_min)
-            (v, _, _) = self.minimax_n_ply(depth + 1, heuristic, max_depth, max=not max, start_time=start_time, allowed_time=current_time / childs_len)
-
+            (v, _, _, d) = self.minimax_n_ply(depth + 1, heuristic, max_depth, max=not max, start_time=start_time, allowed_time=current_time / childs_len)
+            child_seen += 1
+            total_d += d
             # Restore state
             self.current_state[i][j] = self.EMPTY
 
@@ -299,7 +302,8 @@ class Game:
         if x is None and y is None:
             empty_tiles = self.get_empty_tiles()
             (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-        return value, x, y
+        ard = total_d / child_seen if child_seen else depth
+        return value, x, y, ard
 
     def alphabeta_n_ply(self, depth, heuristic, max_depth, alpha=-INF, beta=INF, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
         # Always try to maximize for the current player
@@ -328,15 +332,18 @@ class Game:
             empty_tiles = self.get_empty_tiles()
             empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
             self.logger.visit_end_node_at_depth(depth)
-            return value, empty[0], empty[1]
+            return value, empty[0], empty[1], depth
 
         temp = self.changes
         childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
         childs_len = len(childs)
+        child_seen = 0
+        total_d = 0
         for (i, j) in childs:
             self.update_board(i, j, player_max if max else player_min)
-            (v, _, _) = self.alphabeta_n_ply(depth + 1, heuristic, max_depth, alpha=alpha, beta=beta, max=not max, start_time=start_time, allowed_time=current_time/childs_len)
-
+            (v, _, _, d) = self.alphabeta_n_ply(depth + 1, heuristic, max_depth, alpha=alpha, beta=beta, max=not max, start_time=start_time, allowed_time=current_time/childs_len)
+            child_seen += 1
+            total_d += d
             # Restore state
             self.current_state[i][j] = self.EMPTY
             # Look for pruning opportunity
@@ -346,7 +353,7 @@ class Game:
                     x = i
                     y = j
                 if value >= beta:
-                    return value, x, y
+                    return value, x, y, total_d / child_seen
                 if value > alpha:
                     alpha = value
             else:
@@ -355,14 +362,16 @@ class Game:
                     x = i
                     y = j
                 if value <= alpha:
-                    return value, x, y
+                    return value, x, y, total_d / child_seen
                 if value < beta:
                     beta = value
         self.changes = temp
         if x is None and y is None:
             empty_tiles = self.get_empty_tiles()
             (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-        return value, x, y
+
+        ard = total_d / child_seen if child_seen else depth
+        return value, x, y, ard
 
     def play(self):
         if self.player_x is None:
@@ -394,15 +403,15 @@ class Game:
             self.logger.create_stat_move(self.player_turn)
             if (self.player_turn == self.WHITE and not self.algo1) or (self.player_turn != self.WHITE and not self.algo2):
                 if self.player_turn == self.WHITE:
-                    (m, x, y) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
+                    (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
-                    (m, x, y) = self.minimax_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
+                    (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
             else:
                 if self.player_turn == self.WHITE:
-                    (m, x, y) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
+                    (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
-                    (m, x, y) = self.alphabeta_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
-            self.logger.end_stat_move((x, y))
+                    (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
+            self.logger.end_stat_move((x, y), ard)
             print("Heuristic value: {}".format(m))
             end = time.time()
             if (self.player_turn == self.WHITE and self.player_x == self.HUMAN) or (
@@ -420,7 +429,7 @@ class Game:
 
 
 def main():
-    g = Game(n=5, s=3, b=10, t=5, d1=6, d2=6, recommend=False, a=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g = Game(n=5, s=3, b=10, t=5, d1=6, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
     g.play()
 
 

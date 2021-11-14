@@ -21,6 +21,7 @@ class Stat():
         self.number_of_nodes_at_depth = {}
         self.average_depth = 0
         self.average_recursion_depth = 0
+        self.ard = 0
 
 
 class Logger:
@@ -87,7 +88,7 @@ class Logger:
             s += self.current_stat.number_of_nodes_at_depth[i] * i
         f.write("\niv  Average evaluation depth: {:.1f}".format(s/num))
 
-        # TODO: Add ARD
+        f.write("\nv Average recursion depth: {:.1f}".format(self.current_stat.ard))
 
         f.write("\n\nMove #{}".format(self.count))
         f.close()
@@ -104,8 +105,9 @@ class Logger:
             self.current_stat.number_of_nodes_at_depth[d] = 0
         self.current_stat.number_of_nodes_at_depth[d] += 1
 
-    def end_stat_move(self, move):
+    def end_stat_move(self, move, ard):
         self.current_stat.end_time = time.time()
+        self.current_stat.ard = ard
         self.move = move
         self.stats.append(self.current_stat)
 
@@ -119,6 +121,7 @@ class Logger:
         total_moves = self.count
         for stat in self.stats:
             avg_time += stat.end_time - stat.start_time
+            avg_recursion_depth += stat.ard
             total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
             for i in stat.number_of_nodes_at_depth:
                 if i not in total_states_at_each_depth:
@@ -131,6 +134,7 @@ class Logger:
             s += total_states_at_each_depth[i] * i
 
         avg_time /= len(self.stats)
+        avg_recursion_depth /= len(self.stats)
         avg_eval_depth = s/num
 
         f = open(self.filename, "a")
