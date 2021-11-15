@@ -127,5 +127,148 @@ class Scoreboard:
         f.close()
 
 if __name__ == "__main__":
-    d = Scoreboard(r=5)
+    params_sample1 = {
+        'n': 4,
+        'b': 4,
+        's': 3,
+        't': 5,
+        'd1': 6,
+        'd2': 6,
+        'b_position': [(0,0), (0,3), (3,0), (3,3)],
+        'recommend': False,
+        'a1': False,
+        'a2': False,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample1)
+
+    d.run()
+
+    params_sample2 = {
+        'n': 4,
+        'b': 4,
+        's': 3,
+        't': 1,
+        'd1': 6,
+        'd2': 6,
+        'b_position': [(0,0), (0,3), (3,0), (3,3)],
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample2)
+
+    d.run()
+
+    params_sample3 = {
+        'n': 5,
+        'b': 4,
+        's': 4,
+        't': 1,
+        'd1': 2,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample3)
+
+    d.run()
+
+    params_sample4 = {
+        'n': 5,
+        'b': 4,
+        's': 4,
+        't': 5,
+        'd1': 6,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample4)
+
+    d.run()
+
+    params_sample5 = {
+        'n': 8,
+        'b': 5,
+        's': 5,
+        't': 1,
+        'd1': 2,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample5)
+
+    d.run()
+
+    params_sample6 = {
+        'n': 8,
+        'b': 5,
+        's': 5,
+        't': 5,
+        'd1': 2,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample6)
+
+    d.run()
+
+    params_sample7 = {
+        'n': 8,
+        'b': 6,
+        's': 5,
+        't': 1,
+        'd1': 6,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample7)
+
+    d.run()
+
+    params_sample8 = {
+        'n': 8,
+        'b': 6,
+        's': 5,
+        't': 5,
+        'd1': 6,
+        'd2': 6,
+        'recommend': False,
+        'a1': True,
+        'a2': True,
+        'play_mode': ('ai', 'ai'),
+        'heuristic': ('e2', 'e1')
+    }
+
+    d = Scoreboard(r=10, game_params=params_sample8)
+
     d.run()

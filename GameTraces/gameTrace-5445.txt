@@ -1,0 +1,420 @@
+n=5 b=4 s=4 t=5
+blocks=[(1, 2), (2, 3), (4, 2), (2, 4)]
+
+Player 1: AI d=6 a=(True,) e2
+Player 2: AI d=6 a=(True,) e1
+
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | . | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | . | . | . | . | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | . | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: D 1
+
+i   Evaluation time: 5.00s
+ii  Heuristic evaluations: 81855.00
+iii Evaluations by depth: {6: 81827, 4: 10, 2: 3, 1: 15}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 2.3
+
+Move #1
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | . | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | . | . | . | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | . | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: A 1
+
+i   Evaluation time: 5.01s
+ii  Heuristic evaluations: 72175.00
+iii Evaluations by depth: {6: 72131, 5: 1, 4: 12, 3: 1, 2: 15, 1: 15}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 2.1
+
+Move #2
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | . | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | . | . | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | . | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: C 1
+
+i   Evaluation time: 5.00s
+ii  Heuristic evaluations: 82026.00
+iii Evaluations by depth: {6: 81899, 5: 96, 4: 5, 3: 3, 2: 10, 1: 13}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 2.5
+
+Move #3
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | . | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | . | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | . | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: A 0
+
+i   Evaluation time: 4.13s
+ii  Heuristic evaluations: 75661.00
+iii Evaluations by depth: {6: 75311, 5: 332, 4: 18}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 6.0
+
+Move #4
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | . | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | . | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: D 3
+
+i   Evaluation time: 5.00s
+ii  Heuristic evaluations: 81291.00
+iii Evaluations by depth: {6: 80541, 5: 655, 4: 49, 3: 25, 2: 13, 1: 8}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 3.4
+
+Move #5
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | . | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | . |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: E 3
+
+i   Evaluation time: 5.00s
+ii  Heuristic evaluations: 78750.00
+iii Evaluations by depth: {6: 77416, 5: 1174, 4: 133, 3: 16, 2: 6, 1: 5}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 4.1
+
+Move #6
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | . | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: B 1
+
+i   Evaluation time: 2.69s
+ii  Heuristic evaluations: 42854.00
+iii Evaluations by depth: {6: 41774, 5: 1029, 4: 38, 3: 13}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 5.8
+
+Move #7
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | . | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: B 0
+
+i   Evaluation time: 0.95s
+ii  Heuristic evaluations: 21621.00
+iii Evaluations by depth: {6: 21120, 4: 150, 5: 340, 2: 3, 3: 8}
+iv  Average evaluation depth: 6.0
+v Average recursion depth: 5.5
+
+Move #8
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | . | . | . |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: C 0
+
+i   Evaluation time: 0.11s
+ii  Heuristic evaluations: 2232.00
+iii Evaluations by depth: {6: 1945, 5: 175, 3: 21, 4: 90, 1: 1}
+iv  Average evaluation depth: 5.8
+v Average recursion depth: 4.0
+
+Move #9
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | . | . |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: D 0
+
+i   Evaluation time: 0.15s
+ii  Heuristic evaluations: 3361.00
+iii Evaluations by depth: {6: 3200, 4: 87, 2: 3, 5: 67, 3: 4}
+iv  Average evaluation depth: 5.9
+v Average recursion depth: 5.1
+
+Move #10
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | . |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: E 0
+
+i   Evaluation time: 0.05s
+ii  Heuristic evaluations: 747.00
+iii Evaluations by depth: {6: 649, 5: 75, 3: 22, 1: 1}
+iv  Average evaluation depth: 5.8
+v Average recursion depth: 4.8
+
+Move #11
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | . |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: E 1
+
+i   Evaluation time: 0.04s
+ii  Heuristic evaluations: 533.00
+iii Evaluations by depth: {6: 516, 5: 2, 4: 6, 2: 9}
+iv  Average evaluation depth: 5.9
+v Average recursion depth: 2.4
+
+Move #12
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | . | B | . | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: C 2
+
+i   Evaluation time: 0.07s
+ii  Heuristic evaluations: 1223.00
+iii Evaluations by depth: {6: 1110, 5: 105, 4: 2, 3: 6}
+iv  Average evaluation depth: 5.9
+v Average recursion depth: 5.6
+
+Move #13
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | . | B | X | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: A 2
+
+i   Evaluation time: 0.04s
+ii  Heuristic evaluations: 798.00
+iii Evaluations by depth: {3: 1, 6: 768, 4: 21, 2: 2, 5: 6}
+iv  Average evaluation depth: 5.9
+v Average recursion depth: 5.6
+
+Move #14
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | O | B | X | . | B |
++---+---+---+---+---+---+
+| 3 | . | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: A 3
+
+i   Evaluation time: 0.00s
+ii  Heuristic evaluations: 107.00
+iii Evaluations by depth: {2: 1, 6: 52, 5: 38, 3: 8, 1: 2, 4: 6}
+iv  Average evaluation depth: 5.2
+v Average recursion depth: 3.4
+
+Move #15
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | O | B | X | . | B |
++---+---+---+---+---+---+
+| 3 | X | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player O under AI control plays: D 2
+
+i   Evaluation time: 0.00s
+ii  Heuristic evaluations: 51.00
+iii Evaluations by depth: {2: 2, 6: 30, 4: 19}
+iv  Average evaluation depth: 5.1
+v Average recursion depth: 4.6
+
+Move #16
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | O | B | X | O | B |
++---+---+---+---+---+---+
+| 3 | X | . | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+Player X under AI control plays: B 3
+
+i   Evaluation time: 0.00s
+ii  Heuristic evaluations: 11.00
+iii Evaluations by depth: {1: 2, 5: 6, 3: 3}
+iv  Average evaluation depth: 3.7
+v Average recursion depth: 3.0
+
+Move #17
++---+---+---+---+---+---+
+|   | A | B | C | D | E |
++---+---+---+---+---+---+
+| 0 | O | O | X | O | X |
++---+---+---+---+---+---+
+| 1 | O | X | X | X | O |
++---+---+---+---+---+---+
+| 2 | O | B | X | O | B |
++---+---+---+---+---+---+
+| 3 | X | X | B | X | O |
++---+---+---+---+---+---+
+| 4 | . | . | B | . | . |
++---+---+---+---+---+---+
+
+
+The winner is X!
+
+6(b)i    Average evaluation time: 1.96s
+6(b)ii   Total heuristic evaluations: 545296
+6(b)iii  Evaluations by depth: {6: 540289, 4: 646, 2: 67, 1: 62, 5: 4101, 3: 131}
+6(b)iv   Average evaluation depth: 6.0
+6(b)v    Average recursion depth: 4.1s
+6(b)vi   Total moves: 17
