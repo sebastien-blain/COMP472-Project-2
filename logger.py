@@ -142,12 +142,6 @@ class Logger:
                 num += value
             avg_eval_depth += s/num
 
-        # num = 0
-        # s = 0
-        # for i in total_states_at_each_depth:
-        #     num += total_states_at_each_depth[i]
-        #     s += total_states_at_each_depth[i] * i
-
         avg_time /= len(self.stats)
         avg_recursion_depth /= len(self.stats)
         avg_eval_depth /= len(self.stats)

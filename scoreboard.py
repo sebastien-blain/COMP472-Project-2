@@ -69,12 +69,6 @@ class Scoreboard:
                     total_states_at_each_depth[i] = 0
                 total_states_at_each_depth[i] += stat.number_of_nodes_at_depth[i]
 
-        # num = 0
-        # s = 0
-        # for i in total_states_at_each_depth:
-        #     num += total_states_at_each_depth[i]
-        #     s += total_states_at_each_depth[i] * i
-
         avg_time /= len(stats)
         avg_recursion_depth /= len(stats)
         avg_eval_depth /= len(stats)

@@ -26,13 +26,6 @@ class Game:
     BLOCK = 'B'
     EMPTY = '.'
 
-    # DRAW_DICT = {
-    #     WHITE: u'\u25CB',
-    #     BLACK: u'\u25CF',
-    #     BLOCK: u'\u2612',
-    #     EMPTY: ' '
-    # }
-
     DRAW_DICT = {
         WHITE: 'X',
         BLACK: 'O',
@@ -305,9 +298,6 @@ class Game:
                     y = j
 
         self.changes = temp
-        # if x is None and y is None:
-        #     empty_tiles = self.get_empty_tiles()
-        #     (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
         ard = (total_d / child_seen) if child_seen else depth
         return value, x, y, ard
 
@@ -343,11 +333,8 @@ class Game:
             else:
                 self.eval_at_depth[depth] += 1
             self.heuristic_count += 1
-            empty_tiles = self.get_empty_tiles()
-            empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
             self.logger.visit_end_node_at_depth(depth)
             return value, x, y, depth
-            # return value, empty[0], empty[1], depth
 
         temp = self.changes
         child_seen = 0
@@ -379,9 +366,6 @@ class Game:
                 if value < beta:
                     beta = value
         self.changes = temp
-        # if x is None and y is None:
-        #     empty_tiles = self.get_empty_tiles()
-        #     (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
 
         ard = (total_d / child_seen) if child_seen else depth
         return value, x, y, ard
