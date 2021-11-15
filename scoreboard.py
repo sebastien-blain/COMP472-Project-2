@@ -55,7 +55,7 @@ class Scoreboard:
             avg_time += stat.end_time - stat.start_time
             avg_recursion_depth += stat.ard
             heuristic_count += stat.heuristic_count
-            total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
+            total_states += sum([stat.eval_at_depth[i] for i in stat.eval_at_depth])
 
             s = 0
             num = 0
@@ -64,10 +64,10 @@ class Scoreboard:
                 num += value
             avg_eval_depth += s/num
 
-            for i in stat.number_of_nodes_at_depth:
+            for i in stat.eval_at_depth:
                 if i not in total_states_at_each_depth:
                     total_states_at_each_depth[i] = 0
-                total_states_at_each_depth[i] += stat.number_of_nodes_at_depth[i]
+                total_states_at_each_depth[i] += stat.eval_at_depth[i]
 
         avg_time /= len(stats)
         avg_recursion_depth /= len(stats)

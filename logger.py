@@ -19,7 +19,6 @@ class Stat():
         self.end_time = 0
         self.start_time = 0
         self.evaluation_time = 0
-        self.number_of_nodes_at_depth = {}
         self.average_depth = 0
         self.average_recursion_depth = 0
         self.ard = 0
@@ -80,8 +79,8 @@ class Logger:
 
         f.write("\ni   Evaluation time: {:.2f}s".format(self.current_stat.end_time - self.current_stat.start_time))
         num = 0
-        for i in self.current_stat.number_of_nodes_at_depth:
-            num += self.current_stat.number_of_nodes_at_depth[i]
+        for i in self.current_stat.eval_at_depth:
+            num += self.current_stat.eval_at_depth[i]
         f.write("\nii  Heuristic evaluations: {:.2f}".format(num))
         f.write("\niii Evaluations by depth: {}".format(self.current_stat.eval_at_depth))
         s = 0
@@ -104,9 +103,9 @@ class Logger:
         self.current_stat.start_time = time.time()
 
     def visit_end_node_at_depth(self, d):
-        if d not in self.current_stat.number_of_nodes_at_depth:
-            self.current_stat.number_of_nodes_at_depth[d] = 0
-        self.current_stat.number_of_nodes_at_depth[d] += 1
+        if d not in self.current_stat.eval_at_depth:
+            self.current_stat.eval_at_depth[d] = 0
+        self.current_stat.eval_at_depth[d] += 1
 
     def end_stat_move(self, move, ard, heuristic_count, eval_at_depth):
         self.current_stat.end_time = time.time()
@@ -129,7 +128,7 @@ class Logger:
             avg_time += stat.end_time - stat.start_time
             avg_recursion_depth += stat.ard
             heuristic_count += stat.heuristic_count
-            total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
+            total_states += sum([stat.eval_at_depth[i] for i in stat.eval_at_depth])
             for i in stat.eval_at_depth:
                 if i not in total_states_at_each_depth:
                     total_states_at_each_depth[i] = 0
