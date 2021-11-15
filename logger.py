@@ -91,7 +91,7 @@ class Logger:
             num += value
         f.write("\niv  Average evaluation depth: {:.1f}".format(s/num))
 
-        f.write("\nv Average recursion depth: {:.1f}".format(self.current_stat.ard))
+        f.write("\nv   Average recursion depth: {:.1f}".format(self.current_stat.ard))
 
         f.write("\n\nMove #{}".format(self.count))
         f.close()

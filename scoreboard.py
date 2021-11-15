@@ -14,7 +14,7 @@ default_params = {
     'a1': True,
     'a2': True,
     'play_mode': ('ai', 'ai'),
-    'heuristic': ('e2', 'e1')
+    'heuristic': ('e1', 'e2')
 }
 
 class Scoreboard:
@@ -38,7 +38,7 @@ class Scoreboard:
     def swap_params(self):
         self.game_params['d1'], self.game_params['d2'] = self.game_params['d2'], self.game_params['d1']
         self.game_params['a1'], self.game_params['a2'] = self.game_params['a2'], self.game_params['a1']
-        self.game_params['heuristic'] =  (self.game_params['heuristic'][1], self.game_params['heuristic'][0])
+        self.game_params['heuristic'] = (self.game_params['heuristic'][1], self.game_params['heuristic'][0])
 
     def end_game(self):
         count = self.game.logger.count
@@ -134,7 +134,7 @@ class Scoreboard:
         f.write("\nii   Total heuristic evaluations: {}".format(res['total_states']/self.count))
         f.write("\niii  Evaluations by depth: {}".format(res['total_states_at_each_depth']))
         f.write("\niv   Average evaluation depth: {:.1f}".format(res['avg_eval_depth']/self.count))
-        f.write("\nv    Average recursion depth: {:.1f}s".format(res['avg_recursion_depth']/self.count))
+        f.write("\nv    Average recursion depth: {:.1f}".format(res['avg_recursion_depth']/self.count))
         f.write("\nvi   Average moves per game: {:.2f}\n\n".format(res['total_moves']/self.count))
         f.close()
 

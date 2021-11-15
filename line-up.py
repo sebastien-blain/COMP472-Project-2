@@ -226,9 +226,7 @@ class Game:
 
     def e2(self, player_max, player_min):
         # We look if player max has advantage or not
-
         result = 0
-
         # Checks for lines where player_max is about to win or can expend
         min_win1 = player_min * (self.s - 1)
         min_win2 = player_min * (self.s - 2)
@@ -238,9 +236,9 @@ class Game:
             for line in str_lines:
                 # Blocks a win from min
                 if min_win1+player_max in line or player_max+min_win1 in line:
-                    result += 100
+                    result += 1000
                 if min_win2+player_max in line or player_max+min_win2 in line:
-                    result += 1
+                    result += 100
                 remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
                 for rem_line in remaining_lines:
                     result += 10 ** rem_line.count(player_max)
@@ -446,9 +444,37 @@ class Game:
 
 
 def main():
-    g = Game(n=5, s=3, b=10, t=5, d1=6, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    # sample 1
+    g = Game(n=4, b=4, s=3, t=5, d1=6, d2=6, b_position=[(0,0), (0,3), (3,0), (3,3)], recommend=False, a1=False, a2=False, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
     g.play()
 
+    #sample 2
+    g = Game(n=4, b=4, s=3, t=1, d1=6, d2=6, b_position=[(0,0), (0,3), (3,0), (3,3)], recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 3
+    g = Game(n=5, b=4, s=4, t=1, d1=2, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 4
+    g = Game(n=5, b=4, s=4, t=5, d1=6, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 5
+    g = Game(n=8, b=5, s=5, t=1, d1=2, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 6
+    g = Game(n=8, b=5, s=5, t=5, d1=2, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 7
+    g = Game(n=8, b=6, s=5, t=1, d1=6, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
+
+    #sample 8
+    g = Game(n=8, b=6, s=5, t=5, d1=6, d2=6, recommend=False, a1=True, a2=True, play_mode=('ai', 'ai'), heuristic=('e2', 'e1'))
+    g.play()
 
 if __name__ == "__main__":
     main()
