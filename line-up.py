@@ -224,9 +224,7 @@ class Game:
 
     def e2(self, player_max, player_min):
         # We look if player max has advantage or not
-
         result = 0
-
         # Checks for lines where player_max is about to win or can expend
         min_win1 = player_min * (self.s - 1)
         min_win2 = player_min * (self.s - 2)
@@ -236,9 +234,9 @@ class Game:
             for line in str_lines:
                 # Blocks a win from min
                 if min_win1+player_max in line or player_max+min_win1 in line:
-                    result += 100
+                    result += 1000
                 if min_win2+player_max in line or player_max+min_win2 in line:
-                    result += 1
+                    result += 100
                 remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
                 for rem_line in remaining_lines:
                     result += 10 ** rem_line.count(player_max)

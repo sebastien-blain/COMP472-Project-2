@@ -88,7 +88,7 @@ class Logger:
             s += self.current_stat.number_of_nodes_at_depth[i] * i
         f.write("\niv  Average evaluation depth: {:.1f}".format(s/num))
 
-        f.write("\nv Average recursion depth: {:.1f}".format(self.current_stat.ard))
+        f.write("\nv   Average recursion depth: {:.1f}".format(self.current_stat.ard))
 
         f.write("\n\nMove #{}".format(self.count))
         f.close()
