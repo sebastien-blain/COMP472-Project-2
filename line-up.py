@@ -266,7 +266,7 @@ class Game:
         elif result == self.EMPTY:
             end = True
             value = 0
-        elif childs_len == 0 or (time.time() - start_time >= self.t and time.time() - start_time >= allowed_time) or depth >= max_depth:
+        elif childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
             value = heuristic(player_max, player_min)
         if end:
@@ -334,7 +334,7 @@ class Game:
         elif result == self.EMPTY:
             end = True
             value = 0
-        elif childs_len == 0 or (time.time() - start_time >= self.t and time.time() - start_time >= allowed_time) or depth >= max_depth:
+        elif childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
             value = heuristic(player_max, player_min)
         if end:
