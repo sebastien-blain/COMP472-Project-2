@@ -1,3 +1,4 @@
+from config import configs
 import importlib
 lineup = importlib.import_module('line-up')
 Game = lineup.Game
@@ -44,6 +45,7 @@ class Scoreboard:
         stats = self.game.logger.stats
 
         avg_time = 0
+        heuristic_count = 0
         total_states = 0
         avg_eval_depth = 0
         total_states_at_each_depth = {}
@@ -52,24 +54,34 @@ class Scoreboard:
         for stat in stats:
             avg_time += stat.end_time - stat.start_time
             avg_recursion_depth += stat.ard
+            heuristic_count += stat.heuristic_count
             total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
+
+            s = 0
+            num = 0
+            for depth, value in stat.eval_at_depth.items():
+                s += depth * value
+                num += value
+            avg_eval_depth += s/num
+
             for i in stat.number_of_nodes_at_depth:
                 if i not in total_states_at_each_depth:
                     total_states_at_each_depth[i] = 0
                 total_states_at_each_depth[i] += stat.number_of_nodes_at_depth[i]
-        num = 0
-        s = 0
-        for i in total_states_at_each_depth:
-            num += total_states_at_each_depth[i]
-            s += total_states_at_each_depth[i] * i
+
+        # num = 0
+        # s = 0
+        # for i in total_states_at_each_depth:
+        #     num += total_states_at_each_depth[i]
+        #     s += total_states_at_each_depth[i] * i
 
         avg_time /= len(stats)
         avg_recursion_depth /= len(stats)
-        avg_eval_depth = s/num
+        avg_eval_depth /= len(stats)
 
         return {
             "avg_time": avg_time,
-            "total_states": total_states,
+            "total_states": heuristic_count,
             "total_states_at_each_depth": total_states_at_each_depth,
             "avg_eval_depth": avg_eval_depth,
             "avg_recursion_depth": avg_recursion_depth,
@@ -127,5 +139,6 @@ class Scoreboard:
         f.close()
 
 if __name__ == "__main__":
-    d = Scoreboard(r=5)
-    d.run()
+    for c in configs:
+        d = Scoreboard(r=5, game_params=c)
+        d.run()

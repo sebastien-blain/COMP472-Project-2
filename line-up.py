@@ -61,6 +61,8 @@ class Game:
         self.player_o = self.AI if play_mode[1] == 'ai' else self.HUMAN
         self.player_x_heuristic = (heuristic[0], self.e1) if heuristic[0] == 'e1' else (heuristic[0], self.e2)
         self.player_o_heuristic = (heuristic[1], self.e1) if heuristic[1] == 'e1' else (heuristic[1], self.e2)
+        self.heuristic_count = 0
+        self.eval_at_depth = {}
         self.initialize_game()
 
     def initialize_game(self):
@@ -245,7 +247,7 @@ class Game:
 
         return result
 
-    def minimax_n_ply(self, depth, heuristic, max_depth, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
+    def minimax_n_ply(self, depth, heuristic, max_depth, max=True, start_time=time.time(), current_time=time.time(), allowed_time=100.0):
         x = None
         y = None
         value = -INF if max else INF
@@ -253,7 +255,9 @@ class Game:
 
         player_max = self.player_turn
         player_min = self.BLACK if self.player_turn == self.WHITE else self.WHITE
-        # Look if we are an end node or a leaf node
+
+        childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
+        childs_len = len(childs)
         result = self.is_end()
         if result == player_max:
             end = True
@@ -264,19 +268,23 @@ class Game:
         elif result == self.EMPTY:
             end = True
             value = 0
-        elif time.time() - start_time >= self.t or time.time() - start_time >= allowed_time or depth >= max_depth:
+        elif childs_len == 0 or (time.time() - start_time >= self.t and time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
             value = heuristic(player_max, player_min)
         if end:
+            if depth not in self.eval_at_depth:
+                self.eval_at_depth[depth] = 1
+            else:
+                self.eval_at_depth[depth] += 1
+            self.heuristic_count += 1
             empty_tiles = self.get_empty_tiles()
             empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
             self.logger.visit_end_node_at_depth(depth)
-            return value, empty[0], empty[1], depth
+            return value, x, y, depth
+            # return value, empty[0], empty[1], depth
+
 
         temp = self.changes
-
-        childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
-        childs_len = len(childs)
         child_seen = 0
         total_d = 0
         for (i, j) in childs:
@@ -299,13 +307,13 @@ class Game:
                     y = j
 
         self.changes = temp
-        if x is None and y is None:
-            empty_tiles = self.get_empty_tiles()
-            (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-        ard = total_d / child_seen if child_seen else depth
+        # if x is None and y is None:
+        #     empty_tiles = self.get_empty_tiles()
+        #     (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
+        ard = (total_d / child_seen) if child_seen else depth
         return value, x, y, ard
 
-    def alphabeta_n_ply(self, depth, heuristic, max_depth, alpha=-INF, beta=INF, max=True, start_time=time.time(), current_time=time.time(), allowed_time=10.0):
+    def alphabeta_n_ply(self, depth, heuristic, max_depth, alpha=-INF, beta=INF, max=True, start_time=time.time(), current_time=time.time(), allowed_time=100.0):
         # Always try to maximize for the current player
         x = None
         y = None
@@ -315,6 +323,9 @@ class Game:
         player_max = self.player_turn
         player_min = self.BLACK if self.player_turn == self.WHITE else self.WHITE
         # Look if we are an end node or a leaf node
+        childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
+        childs_len = len(childs)
+
         result = self.is_end()
         if result == player_max:
             end = True
@@ -325,18 +336,22 @@ class Game:
         elif result == self.EMPTY:
             end = True
             value = 0
-        elif time.time() - start_time >= self.t or time.time() - start_time >= allowed_time or depth >= max_depth:
+        elif childs_len == 0 or (time.time() - start_time >= self.t and time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
             value = heuristic(player_max, player_min)
         if end:
+            if depth not in self.eval_at_depth:
+                self.eval_at_depth[depth] = 1
+            else:
+                self.eval_at_depth[depth] += 1
+            self.heuristic_count += 1
             empty_tiles = self.get_empty_tiles()
             empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
             self.logger.visit_end_node_at_depth(depth)
-            return value, empty[0], empty[1], depth
+            return value, x, y, depth
+            # return value, empty[0], empty[1], depth
 
         temp = self.changes
-        childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
-        childs_len = len(childs)
         child_seen = 0
         total_d = 0
         for (i, j) in childs:
@@ -366,11 +381,11 @@ class Game:
                 if value < beta:
                     beta = value
         self.changes = temp
-        if x is None and y is None:
-            empty_tiles = self.get_empty_tiles()
-            (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
+        # if x is None and y is None:
+        #     empty_tiles = self.get_empty_tiles()
+        #     (x, y) = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
 
-        ard = total_d / child_seen if child_seen else depth
+        ard = (total_d / child_seen) if child_seen else depth
         return value, x, y, ard
 
     def play(self):
@@ -401,6 +416,8 @@ class Game:
                 return check_end_res
             start = time.time()
             self.logger.create_stat_move(self.player_turn)
+            self.heuristic_count = 0
+            self.eval_at_depth = {}
             if (self.player_turn == self.WHITE and not self.algo1) or (self.player_turn != self.WHITE and not self.algo2):
                 if self.player_turn == self.WHITE:
                     (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
@@ -411,7 +428,7 @@ class Game:
                     (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
                 else:
                     (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
-            self.logger.end_stat_move((x, y), ard)
+            self.logger.end_stat_move((x, y), ard, self.heuristic_count, self.eval_at_depth)
             print("Heuristic value: {}".format(m))
             end = time.time()
             if (self.player_turn == self.WHITE and self.player_x == self.HUMAN) or (

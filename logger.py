@@ -1,4 +1,5 @@
 import time
+from copy import deepcopy
 
 
 def get_index_from_letter(letter):
@@ -22,6 +23,8 @@ class Stat():
         self.average_depth = 0
         self.average_recursion_depth = 0
         self.ard = 0
+        self.heuristic_count = 0
+        self.eval_at_depth = {}
 
 
 class Logger:
@@ -80,12 +83,12 @@ class Logger:
         for i in self.current_stat.number_of_nodes_at_depth:
             num += self.current_stat.number_of_nodes_at_depth[i]
         f.write("\nii  Heuristic evaluations: {:.2f}".format(num))
-        f.write("\niii Evaluations by depth: {}".format(self.current_stat.number_of_nodes_at_depth))
+        f.write("\niii Evaluations by depth: {}".format(self.current_stat.eval_at_depth))
         s = 0
         num = 0
-        for i in self.current_stat.number_of_nodes_at_depth:
-            num += self.current_stat.number_of_nodes_at_depth[i]
-            s += self.current_stat.number_of_nodes_at_depth[i] * i
+        for depth, value in self.current_stat.eval_at_depth.items():
+            s += depth * value
+            num += value
         f.write("\niv  Average evaluation depth: {:.1f}".format(s/num))
 
         f.write("\nv Average recursion depth: {:.1f}".format(self.current_stat.ard))
@@ -105,16 +108,19 @@ class Logger:
             self.current_stat.number_of_nodes_at_depth[d] = 0
         self.current_stat.number_of_nodes_at_depth[d] += 1
 
-    def end_stat_move(self, move, ard):
+    def end_stat_move(self, move, ard, heuristic_count, eval_at_depth):
         self.current_stat.end_time = time.time()
         self.current_stat.ard = ard
         self.move = move
+        self.current_stat.heuristic_count = heuristic_count
+        self.current_stat.eval_at_depth = deepcopy(eval_at_depth)
         self.stats.append(self.current_stat)
 
 
     def end_game(self, winner):
         avg_time = 0
         total_states = 0
+        heuristic_count = 0
         avg_eval_depth = 0
         total_states_at_each_depth = {}
         avg_recursion_depth = 0
@@ -122,20 +128,29 @@ class Logger:
         for stat in self.stats:
             avg_time += stat.end_time - stat.start_time
             avg_recursion_depth += stat.ard
+            heuristic_count += stat.heuristic_count
             total_states += sum([stat.number_of_nodes_at_depth[i] for i in stat.number_of_nodes_at_depth])
-            for i in stat.number_of_nodes_at_depth:
+            for i in stat.eval_at_depth:
                 if i not in total_states_at_each_depth:
                     total_states_at_each_depth[i] = 0
-                total_states_at_each_depth[i] += stat.number_of_nodes_at_depth[i]
-        num = 0
-        s = 0
-        for i in total_states_at_each_depth:
-            num += total_states_at_each_depth[i]
-            s += total_states_at_each_depth[i] * i
+                total_states_at_each_depth[i] += stat.eval_at_depth[i]
+
+            s = 0
+            num = 0
+            for depth, value in stat.eval_at_depth.items():
+                s += depth * value
+                num += value
+            avg_eval_depth += s/num
+
+        # num = 0
+        # s = 0
+        # for i in total_states_at_each_depth:
+        #     num += total_states_at_each_depth[i]
+        #     s += total_states_at_each_depth[i] * i
 
         avg_time /= len(self.stats)
         avg_recursion_depth /= len(self.stats)
-        avg_eval_depth = s/num
+        avg_eval_depth /= len(self.stats)
 
         f = open(self.filename, "a")
         if winner == EMPTY:
@@ -143,7 +158,7 @@ class Logger:
         else:
             f.write("\n\nThe winner is {}!\n".format(winner))
         f.write("\n6(b)i    Average evaluation time: {:.2f}s".format(avg_time))
-        f.write("\n6(b)ii   Total heuristic evaluations: {}".format(total_states))
+        f.write("\n6(b)ii   Total heuristic evaluations: {}".format(heuristic_count))
         f.write("\n6(b)iii  Evaluations by depth: {}".format(total_states_at_each_depth))
         f.write("\n6(b)iv   Average evaluation depth: {:.1f}".format(avg_eval_depth))
         f.write("\n6(b)v    Average recursion depth: {:.1f}s".format(avg_recursion_depth))
