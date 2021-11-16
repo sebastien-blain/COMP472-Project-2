@@ -44,8 +44,8 @@ class Game:
         self.d_min = d1
         self.d_max = d2
         self.b_position = b_position
-        self.algo1 = a1,
-        self.algo2 = a2,
+        self.algo1 = a1
+        self.algo2 = a2
         self.play_mode = play_mode
         self.white_str = self.WHITE * self.s
         self.black_str = self.BLACK * self.s
