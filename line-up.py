@@ -210,11 +210,11 @@ class Game:
             str_line = ''.join([self.current_state[c][r] for c, r in line])
             for i in range(1, self.s + 1):
                 white_str = i*self.WHITE
-                black_str = i*self.BLACK
+                black_str = i*self.BLACK                    
                 if black_str in str_line:
-                    result += 10 ** i
+                    result += 10 ** i if i != self.s else 1000 ** i
                 if white_str in str_line:
-                    result -= 10 ** i
+                    result -= 10 ** i if i != self.s else 1000 ** i
         return result
 
     def e2(self):
@@ -226,9 +226,9 @@ class Game:
                 white_str = i*self.WHITE
                 black_str = i*self.BLACK
                 if black_str in str_line:
-                    result += 10 ** i
+                    result += 10 ** i if i != self.s else 1000 ** i
                 if white_str in str_line:
-                    result -= 10 ** i
+                    result -= 10 ** i if i != self.s else 1000 ** i
         player_max = self.BLACK
         player_min = self.WHITE
         sign = 1

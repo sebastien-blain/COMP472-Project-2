@@ -149,7 +149,7 @@ class Logger:
         f.write("\n6(b)ii   Total heuristic evaluations: {}".format(heuristic_count))
         f.write("\n6(b)iii  Evaluations by depth: {}".format(total_states_at_each_depth))
         f.write("\n6(b)iv   Average evaluation depth: {:.1f}".format(avg_eval_depth))
-        f.write("\n6(b)v    Average recursion depth: {:.1f}s".format(avg_recursion_depth))
+        f.write("\n6(b)v    Average recursion depth: {:.1f}".format(avg_recursion_depth))
         f.write("\n6(b)vi   Total moves: {}".format(total_moves))
         f.close()
 
