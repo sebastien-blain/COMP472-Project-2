@@ -212,9 +212,9 @@ class Game:
                 white_str = i*self.WHITE
                 black_str = i*self.BLACK                    
                 if black_str in str_line:
-                    result += 10 ** i if i != self.s else 1000 ** i
+                    result += 100 ** i
                 if white_str in str_line:
-                    result -= 10 ** i if i != self.s else 1000 ** i
+                    result -= 100 ** i
         return result
 
     def e2(self):
@@ -226,9 +226,10 @@ class Game:
                 white_str = i*self.WHITE
                 black_str = i*self.BLACK
                 if black_str in str_line:
-                    result += 10 ** i if i != self.s else 1000 ** i
+                    result += 100 ** i
                 if white_str in str_line:
-                    result -= 10 ** i if i != self.s else 1000 ** i
+                    result -= 100 ** i
+
         player_max = self.BLACK
         player_min = self.WHITE
         sign = 1
