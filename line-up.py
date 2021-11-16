@@ -268,11 +268,7 @@ class Game:
             else:
                 self.eval_at_depth[depth] += 1
             self.heuristic_count += 1
-            empty_tiles = self.get_empty_tiles()
-            empty = empty_tiles[random.randint(0, len(empty_tiles) - 1)] if len(empty_tiles) > 0 else [0, 0]
-            self.logger.visit_end_node_at_depth(depth)
             return value, x, y, depth
-            # return value, empty[0], empty[1], depth
 
 
         temp = self.changes
@@ -333,7 +329,6 @@ class Game:
             else:
                 self.eval_at_depth[depth] += 1
             self.heuristic_count += 1
-            self.logger.visit_end_node_at_depth(depth)
             return value, x, y, depth
 
         temp = self.changes

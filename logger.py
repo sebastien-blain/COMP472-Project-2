@@ -102,11 +102,6 @@ class Logger:
         self.current_stat = Stat()
         self.current_stat.start_time = time.time()
 
-    def visit_end_node_at_depth(self, d):
-        if d not in self.current_stat.eval_at_depth:
-            self.current_stat.eval_at_depth[d] = 0
-        self.current_stat.eval_at_depth[d] += 1
-
     def end_stat_move(self, move, ard, heuristic_count, eval_at_depth):
         self.current_stat.end_time = time.time()
         self.current_stat.ard = ard
