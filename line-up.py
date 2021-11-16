@@ -44,8 +44,8 @@ class Game:
         self.d_min = d1
         self.d_max = d2
         self.b_position = b_position
-        self.algo1 = a1,
-        self.algo2 = a2,
+        self.algo1 = a1
+        self.algo2 = a2
         self.play_mode = play_mode
         self.white_str = self.WHITE * self.s
         self.black_str = self.BLACK * self.s
@@ -199,69 +199,74 @@ class Game:
             self.player_turn = self.WHITE
         return self.player_turn
 
-    def r(self, player_max, player_min):
+    def r(self):
         return random.randint(0, 1000)
 
-    def e1(self, player_max, player_min):
+    def e1(self):
         # We look if player max has advantage or not
         # Quick heuristic that gives points if there are possible winning lines for maximizing player and removes points for minimizing player
         result = 0
         for line in self.all_lines:
             str_line = ''.join([self.current_state[c][r] for c, r in line])
             for i in range(1, self.s + 1):
-                max_str = i * player_max
-                min_str = i * player_min
-                if max_str in str_line:
+                white_str = i*self.WHITE
+                black_str = i*self.BLACK
+                if black_str in str_line:
                     result += 10 ** i
-                if min_str in str_line:
+                if white_str in str_line:
                     result -= 10 ** i
         return result
 
-    def e2(self, player_max, player_min):
+    def e2(self):
         # We look if player max has advantage or not
         result = 0
+        for line in self.all_lines:
+            str_line = ''.join([self.current_state[c][r] for c, r in line])
+            for i in range(1, self.s + 1):
+                white_str = i*self.WHITE
+                black_str = i*self.BLACK
+                if black_str in str_line:
+                    result += 10 ** i
+                if white_str in str_line:
+                    result -= 10 ** i
+        player_max = self.BLACK
+        player_min = self.WHITE
+        sign = 1
+
         # Checks for lines where player_max is about to win or can expend
-        min_win1 = player_min * (self.s - 1)
-        min_win2 = player_min * (self.s - 2)
-        for win_line in self.all_lines:
-            # Only keep lines with no blocks that would block a winning line
-            str_lines = [i for i in ''.join([self.current_state[c][r] for c, r in win_line]).split(self.BLOCK) if len(i) >= self.s]
-            for line in str_lines:
-                # Blocks a win from min
-                if min_win1+player_max in line or player_max+min_win1 in line:
-                    result += 1000
-                if min_win2+player_max in line or player_max+min_win2 in line:
-                    result += 100
-                remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
-                for rem_line in remaining_lines:
-                    result += 10 ** rem_line.count(player_max)
+        for i in range(2):
+            if i == 1:
+                player_max, player_min = player_min, player_max
+                sign = -1
+
+            min_win1 = player_min * (self.s - 1)
+            min_win2 = player_min * (self.s - 2)
+            for win_line in self.all_lines:
+                # Only keep lines with no blocks that would block a winning line
+                str_lines = [i for i in ''.join([self.current_state[c][r] for c, r in win_line]).split(self.BLOCK) if len(i) >= self.s]
+                for line in str_lines:
+                    # Blocks a win from min
+                    if min_win1+player_max in line or player_max+min_win1 in line:
+                        result += (10**(self.s-1) * sign)
+                    if min_win2+player_max in line or player_max+min_win2 in line:
+                        result += (10**(self.s-2) * sign)
+                    remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
+                    for rem_line in remaining_lines:
+                        result += (10 ** rem_line.count(player_max) * sign)
 
         return result
 
-    def minimax_n_ply(self, depth, heuristic, max_depth, max=True, start_time=time.time(), current_time=time.time(), allowed_time=100.0):
+    def minimax_n_ply(self, depth, heuristic, max_depth, max=False, start_time=time.time(), current_time=time.time(), allowed_time=100.0):
         x = None
         y = None
         value = -INF if max else INF
         end = False
 
-        player_max = self.player_turn
-        player_min = self.BLACK if self.player_turn == self.WHITE else self.WHITE
-
         childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
         childs_len = len(childs)
-        result = self.is_end()
-        if result == player_max:
+        if childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
-            value = 1000000000000
-        elif result == player_min:
-            end = True
-            value = -1000000000000
-        elif result == self.EMPTY:
-            end = True
-            value = 0
-        elif childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
-            end = True
-            value = heuristic(player_max, player_min)
+            value = heuristic()
         if end:
             if depth not in self.eval_at_depth:
                 self.eval_at_depth[depth] = 1
@@ -275,7 +280,7 @@ class Game:
         child_seen = 0
         total_d = 0
         for (i, j) in childs:
-            self.update_board(i, j, player_max if max else player_min)
+            self.update_board(i, j, self.BLACK if max else self.WHITE)
             (v, _, _, d) = self.minimax_n_ply(depth + 1, heuristic, max_depth, max=not max, start_time=start_time, allowed_time=current_time / childs_len)
             child_seen += 1
             total_d += d
@@ -304,25 +309,12 @@ class Game:
         value = -INF if max else INF
         end = False
 
-        player_max = self.player_turn
-        player_min = self.BLACK if self.player_turn == self.WHITE else self.WHITE
         # Look if we are an end node or a leaf node
         childs = [(i, j) for j in range(0, self.n) for i in range(0, self.n) if self.current_state[i][j] == self.EMPTY]
         childs_len = len(childs)
-
-        result = self.is_end()
-        if result == player_max:
+        if childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
             end = True
-            value = 1000000000000
-        elif result == player_min:
-            end = True
-            value = -1000000000000
-        elif result == self.EMPTY:
-            end = True
-            value = 0
-        elif childs_len == 0 or (time.time() - start_time >= self.t or time.time() - start_time >= allowed_time) or depth >= max_depth:
-            end = True
-            value = heuristic(player_max, player_min)
+            value = heuristic()
         if end:
             if depth not in self.eval_at_depth:
                 self.eval_at_depth[depth] = 1
@@ -335,7 +327,7 @@ class Game:
         child_seen = 0
         total_d = 0
         for (i, j) in childs:
-            self.update_board(i, j, player_max if max else player_min)
+            self.update_board(i, j, self.BLACK if max else self.WHITE)
             (v, _, _, d) = self.alphabeta_n_ply(depth + 1, heuristic, max_depth, alpha=alpha, beta=beta, max=not max, start_time=start_time, allowed_time=current_time/childs_len)
             child_seen += 1
             total_d += d
@@ -397,12 +389,12 @@ class Game:
             self.eval_at_depth = {}
             if (self.player_turn == self.WHITE and not self.algo1) or (self.player_turn != self.WHITE and not self.algo2):
                 if self.player_turn == self.WHITE:
-                    (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
+                    (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=False, start_time=time.time())
                 else:
                     (m, x, y, ard) = self.minimax_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
             else:
                 if self.player_turn == self.WHITE:
-                    (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=True, start_time=time.time())
+                    (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_x_heuristic[1], max_depth=self.d_min, max=False, start_time=time.time())
                 else:
                     (m, x, y, ard) = self.alphabeta_n_ply(depth=0, heuristic=self.player_o_heuristic[1], max_depth=self.d_max,  max=True, start_time=time.time())
             self.logger.end_stat_move((x, y), ard, self.heuristic_count, self.eval_at_depth)
