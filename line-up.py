@@ -212,9 +212,9 @@ class Game:
                 white_str = i*self.WHITE
                 black_str = i*self.BLACK                    
                 if black_str in str_line:
-                    result += 100 ** i
+                    result += 10 ** i
                 if white_str in str_line:
-                    result -= 100 ** i
+                    result -= 10 ** i
         return result
 
     def e2(self):
@@ -248,12 +248,12 @@ class Game:
                 for line in str_lines:
                     # Blocks a win from min
                     if min_win1+player_max in line or player_max+min_win1 in line:
-                        result += (10**(self.s-1) * sign)
+                        result += (100**(self.s-1) * sign)
                     if min_win2+player_max in line or player_max+min_win2 in line:
                         result += (10**(self.s-2) * sign)
                     remaining_lines = [i for i in line.split(player_min) if len(i) >= self.s]
                     for rem_line in remaining_lines:
-                        result += (10 ** rem_line.count(player_max) * sign)
+                        result += (100 ** rem_line.count(player_max) * sign)
 
         return result
 
